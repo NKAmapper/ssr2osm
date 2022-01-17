@@ -1,0 +1,3013 @@
+{
+  "navnetypeHovedgrupper": [
+    {
+      "kode": "1000",
+      "navn": "terreng",
+      "visningsnavn": "Terreng",
+      "beskrivelse": "Alle  grupper som beskriver terrengformasjoner. Tilsvarer Inspire temaet 'landform'.",
+      "navnetypeGrupper": [
+        {
+          "kode": "1100",
+          "navn": "terrengområder",
+          "visningsnavn": "Terrengområder",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver terrengoverflate over større områder.",
+          "navnetyper": [
+            {
+              "kode": "1101",
+              "navn": "landskapsområde",
+              "visningsnavn": "Landskapsområde",
+              "beskrivelse": "Område der drag i landskapet, naturforhold, arealbruk og bosetting er samlende og skiller seg fra tilgrensende områder.",
+              "tags": {}
+            },
+            {
+              "kode": "1102",
+              "navn": "fjellområde",
+              "visningsnavn": "Fjellområde",
+              "beskrivelse": "Større område med fjell og fjellandskap.",
+              "tags": {
+                "natural": "mountain_range"
+              }
+            },
+            {
+              "kode": "1103",
+              "navn": "vidde",
+              "visningsnavn": "Vidde",
+              "beskrivelse": "Høyereliggende (fjell)område med lite høydevariasjoner innenfor området, som regel over tregrensa.",
+              "tags": {
+                "natural": "plateau"
+              }
+            },
+            {
+              "kode": "1104",
+              "navn": "skogområde",
+              "visningsnavn": "Skogområde",
+              "beskrivelse": "Større område med skog og mark.",
+              "tags": {
+                "natural": "wood"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "1200",
+          "navn": "høyder",
+          "visningsnavn": "Høyder",
+          "beskrivelse": "Samlegruppe for objekttyper som er høyere enn andre objektyper i samme område.",
+          "navnetyper": [
+            {
+              "kode": "1201",
+              "navn": "fjell",
+              "visningsnavn": "Fjell",
+              "beskrivelse": "Høyereliggende område (over tregrensa) med stein og sva og lite vegetasjon som reiser seg over landskapet omkring (med høye berg og nuter).",
+              "tags": {
+                "natural": "hill",
+                "place": "locality",
+                "fixme": "consider natural=peak for the most distinct mountains in the district"
+              }
+            },
+            {
+              "kode": "1202",
+              "navn": "berg",
+              "visningsnavn": "Berg",
+              "beskrivelse": "Markert eller avrunda høyde med stein, steinmasse (med eller uten vegetasjon).",
+              "tags": {
+                "natural": "hill",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1203",
+              "navn": "høyde",
+              "visningsnavn": "Høyde",
+              "beskrivelse": "Høyereliggende terrengform, mindre omfattende enn ås og større enn haug.",
+              "tags": {
+                "natural": "hill",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1204",
+              "navn": "ås",
+              "visningsnavn": "Ås",
+              "beskrivelse": "Langstrakt høydedrag.",
+              "tags": {
+                "natural": "hill",
+                "place": "locality",
+                "fixme": "consider natural=peak for the most distinct mountains in the district"
+              }
+            },
+            {
+              "kode": "1205",
+              "navn": "rygg",
+              "visningsnavn": "Rygg",
+              "beskrivelse": "Langstrakt terrengform.",
+              "tags": {
+                "natural": "ridge",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1206",
+              "navn": "haug",
+              "visningsnavn": "Haug",
+              "beskrivelse": "Liten, markant forhøynet terrengform.",
+              "tags": {
+                "natural": "hill",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1207",
+              "navn": "hei",
+              "visningsnavn": "Hei",
+              "beskrivelse": "Berglendt, høyere beliggende område med beitemark.",
+              "tags": {
+                "natural": "hill",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1208",
+              "navn": "topp",
+              "visningsnavn": "Topp",
+              "beskrivelse": "Tind, markant topp på fjell, berg, ås osv.",
+              "tags": {
+                "natural": "hill",
+                "place": "locality",
+                "fixme": "consider natural=peak for the most distinct mountains in the district"
+              }
+            },
+            {
+              "kode": "1209",
+              "navn": "fjellkant",
+              "visningsnavn": "Fjellkant",
+              "beskrivelse": "Aksel, skulder, nese og bryn.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1210",
+              "navn": "egg",
+              "visningsnavn": "Egg",
+              "beskrivelse": "Skarp fjellegg der det går bratt ned på begge sider.",
+              "tags": {
+                "natural": "ridge",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1211",
+              "navn": "hammar",
+              "visningsnavn": "Hammar",
+              "beskrivelse": "Utoverhengende berg.",
+              "tags": {
+                "natural": "cliff"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "1300",
+          "navn": "senkninger",
+          "visningsnavn": "Senkninger",
+          "beskrivelse": "Samlegruppe for objekttyper som er senket ned i forhold til andre objekttyper i samme område.",
+          "navnetyper": [
+            {
+              "kode": "1301",
+              "navn": "dalføre",
+              "visningsnavn": "Dalføre",
+              "beskrivelse": "Stor dal med sidedaler.",
+              "tags": {
+                "natural": "valley",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1302",
+              "navn": "dal",
+              "visningsnavn": "Dal",
+              "beskrivelse": "Mellomstor eller liten dal.",
+              "tags": {
+                "natural": "valley",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1303",
+              "navn": "botn",
+              "visningsnavn": "Botn",
+              "beskrivelse": "Innerste del av en dal, rundaktig, bratt dal eller uthulning i fjellet.",
+              "tags": {
+                "natural": "valley",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1304",
+              "navn": "skar",
+              "visningsnavn": "Skar",
+              "beskrivelse": "Markant senkning i fjell eller berg.",
+              "tags": {
+                "natural": "valley",
+                "place": "locality",
+                "fixme": "consider natural=saddle"
+              }
+            },
+            {
+              "kode": "1305",
+              "navn": "juv",
+              "visningsnavn": "Juv",
+              "beskrivelse": "Kløftlignende dal eller canyon.",
+              "tags": {
+                "natural": "gorge"
+              }
+            },
+            {
+              "kode": "1306",
+              "navn": "søkk",
+              "visningsnavn": "Søkk",
+              "beskrivelse": "Mindre markant, begrenset fordypning.",
+              "tags": {
+                "natural": "valley",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1307",
+              "navn": "senkning",
+              "visningsnavn": "Senkning",
+              "beskrivelse": "Flat forsenkning, dalsenkning.",
+              "tags": {
+                "natural": "valley",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1308",
+              "navn": "krater",
+              "visningsnavn": "Krater",
+              "beskrivelse": "Skål- eller traktformet senkning i jordoverflaten forårsaket av vulkansk aktivitet eller av meteorittnedslag.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "1400",
+          "navn": "flater",
+          "visningsnavn": "Flater",
+          "beskrivelse": "Samlegruppe for objekttyper som flate terrengområder.",
+          "navnetyper": [
+            {
+              "kode": "1401",
+              "navn": "mo",
+              "visningsnavn": "Mo",
+              "beskrivelse": "Større, flatt landområde (ofte skogkledd).",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1402",
+              "navn": "slette",
+              "visningsnavn": "Slette",
+              "beskrivelse": "Åpent, flatt område.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "1500",
+          "navn": "skråninger",
+          "visningsnavn": "Skråninger",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver hellende terreng.",
+          "navnetyper": [
+            {
+              "kode": "1501",
+              "navn": "li",
+              "visningsnavn": "Li",
+              "beskrivelse": "Skrånende terreng.",
+              "tags": {
+                "natural": "slope",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1502",
+              "navn": "bakke",
+              "visningsnavn": "Bakke",
+              "beskrivelse": "Terrengskråning, særlig om siden av en ås eller haug.",
+              "tags": {
+                "natural": "slope",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1503",
+              "navn": "fjellside",
+              "visningsnavn": "Fjellside",
+              "beskrivelse": "Åpent, skrånende terreng i fjellet.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1504",
+              "navn": "fjellvegg",
+              "visningsnavn": "Fjellvegg",
+              "beskrivelse": "Tilnærmet loddrett vegg i fjellside.",
+              "tags": {
+                "natural": "cliff"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "1600",
+          "navn": "terrengdetaljer",
+          "visningsnavn": "Terrengdetaljer",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver spesielle terrengdetaljer.",
+          "navnetyper": [
+            {
+              "kode": "1601",
+              "navn": "hylle",
+              "visningsnavn": "Hylle",
+              "beskrivelse": "Flatt, tilnærmet vannrett område i fjellside.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1602",
+              "navn": "stup",
+              "visningsnavn": "Stup",
+              "beskrivelse": "Loddrett, svært bratt berg.",
+              "tags": {
+                "natural": "cliff"
+              }
+            },
+            {
+              "kode": "1603",
+              "navn": "heller",
+              "visningsnavn": "Heller",
+              "beskrivelse": "Utoverhengende bergvegg eller berghule.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1604",
+              "navn": "grotte",
+              "visningsnavn": "Grotte",
+              "beskrivelse": "Naturlig fjellgrotte.",
+              "tags": {
+                "natural": "cave_entrance"
+              }
+            },
+            {
+              "kode": "1605",
+              "navn": "geologiskStruktur",
+              "visningsnavn": "Geologisk struktur",
+              "beskrivelse": "Navngitt struktur/formasjon i berggrunnen.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "1606",
+              "navn": "annenTerrengdetalj",
+              "visningsnavn": "Annen terrengdetalj",
+              "beskrivelse": "Små detaljer som ikke dekkes av andre navneobjekttyper innenfor kategorien.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kode": "2000",
+      "navn": "markslag",
+      "visningsnavn": "Markslag",
+      "beskrivelse": "Alle grupper som er relevante under hovedgruppe Markslag. Tilsvarer Inspire temaet 'landcover'.",
+      "navnetypeGrupper": [
+        {
+          "kode": "2100",
+          "navn": "bartFjell",
+          "visningsnavn": "Bart fjell",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver overflater av bart fjell.",
+          "navnetyper": [
+            {
+              "kode": "2101",
+              "navn": "fjellIDagen",
+              "visningsnavn": "Fjell i dagen",
+              "beskrivelse": "Lite/ingen vegetasjon, sva, svaberg. Erstattes av sva.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2102",
+              "navn": "sva",
+              "visningsnavn": "Sva",
+              "beskrivelse": "Bart, avrundet glatt fjell",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "2200",
+          "navn": "løsmasseavsetninger",
+          "visningsnavn": "Løsmasseavsetninger",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver avsetting av løse masser.",
+          "navnetyper": [
+            {
+              "kode": "2201",
+              "navn": "ur",
+              "visningsnavn": "Ur",
+              "beskrivelse": "Steinområde, steinrøys eller steinur.",
+              "tags": {
+                "natural": "scree"
+              }
+            },
+            {
+              "kode": "2202",
+              "navn": "stein",
+              "visningsnavn": "Stein",
+              "beskrivelse": "Frittliggende steinblokk.",
+              "tags": {
+                "natural": "stone"
+              }
+            },
+            {
+              "kode": "2203",
+              "navn": "sand",
+              "visningsnavn": "Sand",
+              "beskrivelse": "Finkornede avsetninger (sand og/eller grus).",
+              "tags": {
+                "natural": "beach",
+                "surface": "sand"
+              }
+            },
+            {
+              "kode": "2204",
+              "navn": "elvemel",
+              "visningsnavn": "Elvemel",
+              "beskrivelse": "Bratt sand-/grusskråning langs elv eller vann.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2205",
+              "navn": "øyr",
+              "visningsnavn": "Øyr",
+              "beskrivelse": "Sand-/grusområde i elvemunning, elvedelta både mot innsjø/vann og saltvann.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2206",
+              "navn": "skredområde",
+              "visningsnavn": "Skredområde",
+              "beskrivelse": "Område der det går eller har gått skred.",
+              "tags": {
+                "natural": "scree",
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "2300",
+          "navn": "vegetasjon",
+          "visningsnavn": "Vegetasjon",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver vegetasjonen.",
+          "navnetyper": [
+            {
+              "kode": "2301",
+              "navn": "skog",
+              "visningsnavn": "Skog",
+              "beskrivelse": "Alle typer fra stor barskog til og med vierkratt i Finnmark.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2302",
+              "navn": "skogholt",
+              "visningsnavn": "Skogholt",
+              "beskrivelse": "Mindre samling av trær.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "2400",
+          "navn": "våtmark",
+          "visningsnavn": "Våtmark",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver våt/fuktig mark.",
+          "navnetyper": [
+            {
+              "kode": "2401",
+              "navn": "myr",
+              "visningsnavn": "Myr",
+              "beskrivelse": "Alle typer fra åpen gressmyr til våt moldjord dekket med kjerr.",
+              "tags": {
+                "natural": "wetland"
+              }
+            },
+            {
+              "kode": "2402",
+              "navn": "våtmarksområde",
+              "visningsnavn": "Våtmarksområde",
+              "beskrivelse": "Sump, område med våtmark.",
+              "tags": {
+                "natural": "wetland"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "2500",
+          "navn": "dyrkamark",
+          "visningsnavn": "Dyrkamark",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver ulike typer dyrket mark.",
+          "navnetyper": [
+            {
+              "kode": "2501",
+              "navn": "eng",
+              "visningsnavn": "Eng",
+              "beskrivelse": "Kultivert slåtte-/gressmark.",
+              "tags": {
+                "landuse": "meadow"
+              }
+            },
+            {
+              "kode": "2502",
+              "navn": "jorde",
+              "visningsnavn": "Jorde",
+              "beskrivelse": "Kultivert dyrkningsmark.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2503",
+              "navn": "havnehage",
+              "visningsnavn": "Havnehage",
+              "beskrivelse": "Inngjerdet beitemark.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2504",
+              "navn": "setervoll",
+              "visningsnavn": "Setervoll",
+              "beskrivelse": "Ryddet, gressbevokst område på seter uten hus.",
+              "tags": {
+                "historic": "shieling",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2505",
+              "navn": "melkeplass",
+              "visningsnavn": "Melkeplass",
+              "beskrivelse": "Seterplass uten hus (ev. med enkelt skur) brukt til melking av husdyr.",
+              "tags": {
+                "historic": "shieling",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2506",
+              "navn": "utmark",
+              "visningsnavn": "Utmark",
+              "beskrivelse": "Beitemark i skog og mark vekk fra garden (og innmarka).",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "2600",
+          "navn": "isOgPermafrost",
+          "visningsnavn": "Is og permafrost",
+          "beskrivelse": "Samlegruppe for objekttyper som er fryst.",
+          "navnetyper": [
+            {
+              "kode": "2601",
+              "navn": "isbre",
+              "visningsnavn": "Isbre",
+              "beskrivelse": "Større sammenhengende snø- eller isområde som ikke smelter i løpet av sommeren.",
+              "tags": {
+                "natural": "glacier"
+              }
+            },
+            {
+              "kode": "2602",
+              "navn": "fonn",
+              "visningsnavn": "Fonn",
+              "beskrivelse": "Liten snø- eller isflate som vanligvis ikke smelter om sommeren.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "2603",
+              "navn": "iskuppel",
+              "visningsnavn": "Iskuppel",
+              "beskrivelse": "Konveks ismasse av en viss tykkelse i større bre eller innlandsis.",
+              "tags": {
+                "natural": "glacier"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "2700",
+          "navn": "uttakOgDeponi",
+          "visningsnavn": "Uttak og deponi",
+          "beskrivelse": "Samlegruppe for objekttyper av menneskeskapte uttak eller fyllinger.",
+          "navnetyper": [
+            {
+              "kode": "2701",
+              "navn": "torvtak",
+              "visningsnavn": "Torvtak",
+              "beskrivelse": "Sted for uttak av myrtorv, brenntorv eller veksttorv.",
+              "tags": {
+                "landuse": "peat_cutting"
+              }
+            },
+            {
+              "kode": "2702",
+              "navn": "grustakSteinbrudd",
+              "visningsnavn": "Grustak/steinbrudd",
+              "beskrivelse": "Uttaksplass/-område for sand, grus, pukk, skifer eller stein.",
+              "tags": {
+                "landuse": "quarry"
+              }
+            },
+            {
+              "kode": "2703",
+              "navn": "bergverk",
+              "visningsnavn": "Bergverk",
+              "beskrivelse": "Gruve, skjerp og mineraluttak i dagen eller under jorda.",
+              "tags": {
+                "landuse": "quarry"
+              }
+            },
+            {
+              "kode": "2704",
+              "navn": "fyllplass",
+              "visningsnavn": "Fyllplass",
+              "beskrivelse": "Plass for deponering av masse som stein, jord og søppel.",
+              "tags": {
+                "landuse": "landfill"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kode": "3000",
+      "navn": "ferskvann",
+      "visningsnavn": "Ferskvann",
+      "beskrivelse": "Alle grupper som er relevante under hovedgruppe Ferskvann. Under Inspire temaet 'hydrography' som vi har delt i to.",
+      "navnetypeGrupper": [
+        {
+          "kode": "3100",
+          "navn": "stilleståendeVann",
+          "visningsnavn": "Stillestående vann",
+          "beskrivelse": "Samlegruppe for objekttyper av ferskvann som ser ut til å stå stille.",
+          "navnetyper": [
+            {
+              "kode": "3101",
+              "navn": "innsjø",
+              "visningsnavn": "Innsjø",
+              "beskrivelse": "Stort vann.",
+              "tags": {
+                "natural": "water",
+                "water": "lake"
+              }
+            },
+            {
+              "kode": "3102",
+              "navn": "delAvInnsjø",
+              "visningsnavn": "Del av innsjø",
+              "beskrivelse": "Mindre del av innsjø.",
+              "tags": {
+                "natural": "water"
+              }
+            },
+            {
+              "kode": "3103",
+              "navn": "vann",
+              "visningsnavn": "Vann",
+              "beskrivelse": "Middels stort vann.",
+              "tags": {
+                "natural": "water",
+                "water": "lake"
+              }
+            },
+            {
+              "kode": "3104",
+              "navn": "gruppeAvVann",
+              "visningsnavn": "Gruppe av vann",
+              "beskrivelse": "To eller flere vann.",
+              "tags": {
+                "natural": "water",
+                "water": "lake"
+              }
+            },
+            {
+              "kode": "3105",
+              "navn": "tjern",
+              "visningsnavn": "Tjern",
+              "beskrivelse": "Lite vann.",
+              "tags": {
+                "natural": "water"
+              }
+            },
+            {
+              "kode": "3106",
+              "navn": "gruppeAvTjern",
+              "visningsnavn": "Gruppe av tjern",
+              "beskrivelse": "To eller flere små tjern.",
+              "tags": {
+                "natural": "water",
+                "water": "lake"
+              }
+            },
+            {
+              "kode": "3107",
+              "navn": "pytt",
+              "visningsnavn": "Pytt",
+              "beskrivelse": "Lite vannhull (mindre enn tjern).",
+              "tags": {
+                "natural": "water",
+                "water": "pond"
+              }
+            },
+            {
+              "kode": "3108",
+              "navn": "dam",
+              "visningsnavn": "Dam",
+              "beskrivelse": "Både store reguleringsdammer og små fløtningsdammer. Angi kurve for lange og ett punkt midt på for korte damkroner.",
+              "tags": {
+                "waterway": "dam"
+              }
+            },
+            {
+              "kode": "3109",
+              "navn": "delAvVann",
+              "visningsnavn": "Del av vann",
+              "beskrivelse": "Mindre del av vann.",
+              "tags": {
+                "natural": "water"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "3200",
+          "navn": "ferskvannskontur",
+          "visningsnavn": "Ferskvannskontur",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver omrisset av objekter med ferskvann.",
+          "navnetyper": [
+            {
+              "kode": "3201",
+              "navn": "øy",
+              "visningsnavn": "Øy",
+              "beskrivelse": "Tørt landområde i ferskvann atskilt fra fastlandet.",
+              "tags": {
+                "place": "island"
+              }
+            },
+            {
+              "kode": "3202",
+              "navn": "øygruppe",
+              "visningsnavn": "Øygruppe",
+              "beskrivelse": "To eller flere øyer i ferskvann.",
+              "tags": {
+                "place": "island"
+              }
+            },
+            {
+              "kode": "3203",
+              "navn": "holme",
+              "visningsnavn": "Holme",
+              "beskrivelse": "Liten øy i ferskvann.",
+              "tags": {
+                "place": "islet"
+              }
+            },
+            {
+              "kode": "3204",
+              "navn": "nes",
+              "visningsnavn": "Nes",
+              "beskrivelse": "Landområde stikkende ut i ferskvann.",
+              "tags": {
+                "natural": "cape"
+              }
+            },
+            {
+              "kode": "3205",
+              "navn": "halvøy",
+              "visningsnavn": "Halvøy",
+              "beskrivelse": "Større nes i ferskvann med smalt eid mot fastland.",
+              "tags": {
+                "natural": "peninsula",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "3206",
+              "navn": "vik",
+              "visningsnavn": "Vik",
+              "beskrivelse": "Kil eller bukt i vann eller vassdrag.",
+              "tags": {
+                "natural": "bay"
+              }
+            },
+            {
+              "kode": "3207",
+              "navn": "strand",
+              "visningsnavn": "Strand",
+              "beskrivelse": "Sand-, grus- eller steindekket område i vannkanten ved elv eller vann.",
+              "tags": {
+                "natural": "beach"
+              }
+            },
+            {
+              "kode": "3208",
+              "navn": "sund",
+              "visningsnavn": "Sund",
+              "beskrivelse": "Innsnevret område i vann eller vassdrag.",
+              "tags": {
+                "natural": "strait"
+              }
+            },
+            {
+              "kode": "3209",
+              "navn": "eid",
+              "visningsnavn": "Eid",
+              "beskrivelse": "Lavt eller smalt parti mellom to vannkanter (elv eller vann).",
+              "tags": {
+                "natural": "isthmus",
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "3300",
+          "navn": "grunnerIFerskvann",
+          "visningsnavn": "Grunner i ferskvann",
+          "beskrivelse": "Samlegruppe for objekttyper under vannflaten som stikker høyere opp enn resten av området, men ikke vesentlig over vannflaten.",
+          "navnetyper": [
+            {
+              "kode": "3301",
+              "navn": "grunne",
+              "visningsnavn": "Grunne",
+              "beskrivelse": "Lite område under vann som hever seg fra området rundt.",
+              "tags": {
+                "natural": "shoal",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "3302",
+              "navn": "skjær",
+              "visningsnavn": "Skjær",
+              "beskrivelse": "Fjell eller stein i vannflaten.",
+              "tags": {
+                "place": "islet"
+              }
+            },
+            {
+              "kode": "3303",
+              "navn": "båe",
+              "visningsnavn": "Båe ",
+              "beskrivelse": "Fjell eller stein under vannflaten.",
+              "tags": {
+                "seamark:type": "rock",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "3304",
+              "navn": "banke",
+              "visningsnavn": "Banke ",
+              "beskrivelse": "Flatt, større undervannsområde.",
+              "tags": {
+                "natural": "shoal"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "3400",
+          "navn": "rennendeVann",
+          "visningsnavn": "Rennende vann",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver rennenede ferskvann.",
+          "navnetyper": [
+            {
+              "kode": "3401",
+              "navn": "elv",
+              "visningsnavn": "Elv",
+              "beskrivelse": "Rennende vann i naturlig vannvei, vanligvis bredere enn 3 meter.",
+              "tags": {
+                "waterway": "river"
+              }
+            },
+            {
+              "kode": "3402",
+              "navn": "bekk",
+              "visningsnavn": "Bekk",
+              "beskrivelse": "Rennende vann i naturlig vannvei, vanligvis smalere enn 3 meter.",
+              "tags": {
+                "waterway": "stream"
+              }
+            },
+            {
+              "kode": "3403",
+              "navn": "grøft",
+              "visningsnavn": "Grøft",
+              "beskrivelse": "Rennende vann i oppgravd vannvei, f.eks. dreneringsgrøft i myr.",
+              "tags": {
+                "waterway": "drain"
+              }
+            },
+            {
+              "kode": "3404",
+              "navn": "foss",
+              "visningsnavn": "Foss",
+              "beskrivelse": "Vann i tilnærmet fritt fall.",
+              "tags": {
+                "natural": "waterfall"
+              }
+            },
+            {
+              "kode": "3405",
+              "navn": "stryk",
+              "visningsnavn": "Stryk",
+              "beskrivelse": "Del av elv, bekk der vannet går i stryk (og skiller seg tydelig fra resten av elva/bekken).",
+              "tags": {
+                "waterway": "rapids"
+              }
+            },
+            {
+              "kode": "3406",
+              "navn": "os",
+              "visningsnavn": "Os",
+              "beskrivelse": "Innløp eller utløp av elv eller bekk i innsjø/vann/tjern eller sjø (saltvann).",
+              "tags": {
+                "natural": "bay"
+              }
+            },
+            {
+              "kode": "3407",
+              "navn": "høl",
+              "visningsnavn": "Høl",
+              "beskrivelse": "Dyp elvebunn under foss eller etter et stryk.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "3408",
+              "navn": "lon",
+              "visningsnavn": "Lon",
+              "beskrivelse": "Utbuktning i elv eller bekk der vannet renner stille.",
+              "tags": {
+                "natural": "water",
+                "water": "lake"
+              }
+            },
+            {
+              "kode": "3409",
+              "navn": "fløtningsanlegg",
+              "visningsnavn": "Fløtningsanlegg",
+              "beskrivelse": "Kunstig fløtningsanlegg.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "3410",
+              "navn": "kilde",
+              "visningsnavn": "Kilde",
+              "beskrivelse": "Oppkomme, olle, kildeutspring, osv.",
+              "tags": {
+                "natural": "spring"
+              }
+            },
+            {
+              "kode": "3411",
+              "navn": "elvesving",
+              "visningsnavn": "Elvesving",
+              "beskrivelse": "Naturlig sving i elv eller bekk.",
+              "tags": {
+                "waterway": "river"
+              }
+            },
+            {
+              "kode": "3412",
+              "navn": "nesVedElver",
+              "visningsnavn": "Nes ved elver",
+              "beskrivelse": "Landet mellom to møtende elver.",
+              "tags": {
+                "natural": "cape"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "3500",
+          "navn": "detaljerIFerskvann",
+          "visningsnavn": "Detaljer i ferskvann",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver detaljer i ferskvann.",
+          "navnetyper": [
+            {
+              "kode": "3501",
+              "navn": "annenVanndetalj",
+              "visningsnavn": "Annen vanndetalj",
+              "beskrivelse": "Andre navngitte forhold i ferskvann.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kode": "4000",
+      "navn": "sjø",
+      "visningsnavn": "Sjø",
+      "beskrivelse": "Alle grupper som er relevante under hovedgruppe Sjø. Under Inspire temaet 'hydrography' som vi har delt i to.",
+      "navnetypeGrupper": [
+        {
+          "kode": "4100",
+          "navn": "farvann",
+          "visningsnavn": "Farvann",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver større områder av sjø.",
+          "navnetyper": [
+            {
+              "kode": "4101",
+              "navn": "havområde",
+              "visningsnavn": "Havområde",
+              "beskrivelse": "Del av et hav.",
+              "tags": {
+                "place": "sea"
+              }
+            },
+            {
+              "kode": "4102",
+              "navn": "havstrøm",
+              "visningsnavn": "Havstrøm",
+              "beskrivelse": "Kontinuerlig bevegelse av vann (i havet) på grunn av klimatiske forhold eller tidevann.",
+              "tags": {}
+            },
+            {
+              "kode": "4103",
+              "navn": "sjøstykke",
+              "visningsnavn": "Sjøstykke",
+              "beskrivelse": "Stykke av sjøen utanfor land, vanligvis innaskjærs eller i kystnære farvann.",
+              "tags": {
+                "natural": "bay"
+              }
+            },
+            {
+              "kode": "4104",
+              "navn": "fjordmunning",
+              "visningsnavn": "Fjordmunning",
+              "beskrivelse": "Område ytterst i en fjord.",
+              "tags": {
+                "natural": "bay",
+                "bay": "fjord"
+              }
+            },
+            {
+              "kode": "4105",
+              "navn": "fjord",
+              "visningsnavn": "Fjord",
+              "beskrivelse": "Arm av havet inn i fastlandet.",
+              "tags": {
+                "natural": "bay",
+                "bay": "fjord"
+              }
+            },
+            {
+              "kode": "4106",
+              "navn": "fiskeplassISjø",
+              "visningsnavn": "Fiskeplass i sjø",
+              "beskrivelse": "Navngitt fiskested, fiskemed.",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "kode": "4200",
+          "navn": "kystkontur",
+          "visningsnavn": "Kystkontur",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver grensa mellom sjø og tørt land.",
+          "navnetyper": [
+            {
+              "kode": "4201",
+              "navn": "øyISjø",
+              "visningsnavn": "Øy i sjø",
+              "beskrivelse": "Tørt landområde atskilt fra fastlandet.",
+              "tags": {
+                "place": "island"
+              }
+            },
+            {
+              "kode": "4202",
+              "navn": "øygruppeISjø",
+              "visningsnavn": "Øygruppe i sjø",
+              "beskrivelse": "To eller flere øyer.",
+              "tags": {
+                "place": "island"
+              }
+            },
+            {
+              "kode": "4203",
+              "navn": "holmeISjø",
+              "visningsnavn": "Holme i sjø",
+              "beskrivelse": "Liten øy.",
+              "tags": {
+                "place": "islet"
+              }
+            },
+            {
+              "kode": "4204",
+              "navn": "holmegruppeISjø",
+              "visningsnavn": "Holmegruppe i sjø",
+              "beskrivelse": "To eller flere små øyer.",
+              "tags": {
+                "place": "islet"
+              }
+            },
+            {
+              "kode": "4205",
+              "navn": "nesISjø",
+              "visningsnavn": "Nes i sjø",
+              "beskrivelse": "Landområde stikkende ut i sjø.",
+              "tags": {
+                "natural": "cape"
+              }
+            },
+            {
+              "kode": "4206",
+              "navn": "halvøyISjø",
+              "visningsnavn": "Halvøy i sjø",
+              "beskrivelse": "Større nes med smalt eid mot fastland.",
+              "tags": {
+                "natural": "peninsula",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "4207",
+              "navn": "vikISjø",
+              "visningsnavn": "Vik i sjø",
+              "beskrivelse": "Kil, bukt.",
+              "tags": {
+                "natural": "bay"
+              }
+            },
+            {
+              "kode": "4208",
+              "navn": "strandISjø",
+              "visningsnavn": "Strand i sjø",
+              "beskrivelse": "Sand-, grus- eller steindekket område i sjøkanten.",
+              "tags": {
+                "natural": "beach"
+              }
+            },
+            {
+              "kode": "4209",
+              "navn": "sundISjø",
+              "visningsnavn": "Sund i sjø",
+              "beskrivelse": "Innsnevret område mellom øyer eller fastland.",
+              "tags": {
+                "natural": "strait"
+              }
+            },
+            {
+              "kode": "4210",
+              "navn": "eidISjø",
+              "visningsnavn": "Eid i sjø",
+              "beskrivelse": "Landstripe med sjø på begge sider som binder sammen to landområder.",
+              "tags": {
+                "natural": "isthmus",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "4211",
+              "navn": "vågISjø",
+              "visningsnavn": "Våg i sjø",
+              "beskrivelse": "Fjordarm, større vik.",
+              "tags": {
+                "natural": "bay"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "4300",
+          "navn": "grunnerISjø",
+          "visningsnavn": "Grunner i sjø",
+          "beskrivelse": "Samlegruppe for objekttyper under havflaten som stikker høyere opp enn resten av området, men ikke vesentlig over vannflaten.",
+          "navnetyper": [
+            {
+              "kode": "4301",
+              "navn": "grunneISjø",
+              "visningsnavn": "Grunne i sjø",
+              "beskrivelse": "Markant forhøyning av havbunnen.",
+              "tags": {
+                "natural": "shoal",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "4302",
+              "navn": "skjærISjø",
+              "visningsnavn": "Skjær i sjø",
+              "beskrivelse": "Bergrunn nær eller rett over vannflaten.",
+              "tags": {
+                "place": "islet",
+                "fixme": "consider seamark:type=rock or natural=shoal"
+              }
+            },
+            {
+              "kode": "4303",
+              "navn": "båeISjø",
+              "visningsnavn": "Båe i sjø",
+              "beskrivelse": "Spiss grunne, blindskjær som sjøen bryter over.",
+              "tags": {
+                "seamark:type": "rock",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "4304",
+              "navn": "klakkISjø",
+              "visningsnavn": "Klakk i sjø",
+              "beskrivelse": "Fjellknatt på sjøbunnen.",
+              "tags": {
+                "natural": "shoal"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "4400",
+          "navn": "sjøbunn",
+          "visningsnavn": "Sjøbunn",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver sjøbunnen.",
+          "navnetyper": [
+            {
+              "kode": "4401",
+              "navn": "bankeISjø",
+              "visningsnavn": "Banke i sjø",
+              "beskrivelse": "Større grunt område i sjøen med dypere vann omkring, fiskegrunn.",
+              "tags": {}
+            },
+            {
+              "kode": "4402",
+              "navn": "bakkeISjø",
+              "visningsnavn": "Bakke i sjø",
+              "beskrivelse": "Skrånende sjøbunn.",
+              "tags": {}
+            },
+            {
+              "kode": "4403",
+              "navn": "bakketoppISjø",
+              "visningsnavn": "Bakketopp i sjø",
+              "beskrivelse": "Undersjøisk knaus, kolle eller haug.",
+              "tags": {}
+            },
+            {
+              "kode": "4404",
+              "navn": "søkkISjø",
+              "visningsnavn": "Søkk i sjø",
+              "beskrivelse": "Stor eller liten grop på sjøbunnen.",
+              "tags": {}
+            },
+            {
+              "kode": "4405",
+              "navn": "renneKløftISjø",
+              "visningsnavn": "Renne/Kløft i sjø",
+              "beskrivelse": "Undersjøisk dal, kanal, senkning, ravine, fure, spor, rille o.l.",
+              "tags": {}
+            },
+            {
+              "kode": "4406",
+              "navn": "ryggISjø",
+              "visningsnavn": "Rygg i sjø",
+              "beskrivelse": "Undersjøisk ås, åskam eller fjellrygg.",
+              "tags": {}
+            },
+            {
+              "kode": "4407",
+              "navn": "moreneryggISjø",
+              "visningsnavn": "Morenerygg i sjø",
+              "beskrivelse": "Marin israndavsetning.",
+              "tags": {}
+            },
+            {
+              "kode": "4408",
+              "navn": "eggISjø",
+              "visningsnavn": "Egg i sjø",
+              "beskrivelse": "Undersjøisk kant mot havdyp.",
+              "tags": {}
+            },
+            {
+              "kode": "4409",
+              "navn": "korallrev",
+              "visningsnavn": "Korallrev",
+              "beskrivelse": "Rev som er dannet av koraller.",
+              "tags": {
+                "natural": "reef"
+              }
+            },
+            {
+              "kode": "4410",
+              "navn": "revISjø",
+              "visningsnavn": "Rev i sjø",
+              "beskrivelse": "Grunne, banke av stein/fjell (som strekker seg ut fra en kyst).",
+              "tags": {
+                "natural": "shoal"
+              }
+            },
+            {
+              "kode": "4411",
+              "navn": "hylleISjø",
+              "visningsnavn": "Hylle i sjø",
+              "beskrivelse": "Undersjøisk benk, klippeavsats, kant, fremspring, avsats.",
+              "tags": {}
+            },
+            {
+              "kode": "4412",
+              "navn": "undersjøiskVegg",
+              "visningsnavn": "Undersjøisk vegg",
+              "beskrivelse": "Fjellside i havet.",
+              "tags": {}
+            },
+            {
+              "kode": "4413",
+              "navn": "rasISjø",
+              "visningsnavn": "Ras i sjø",
+              "beskrivelse": "Undersjøisk rasområde med stein, jord, sand eller leire.",
+              "tags": {}
+            },
+            {
+              "kode": "4414",
+              "navn": "fjelltoppISjø",
+              "visningsnavn": "Fjelltopp i sjø",
+              "beskrivelse": "Undersjøisk fjelltopp.",
+              "tags": {}
+            },
+            {
+              "kode": "4415",
+              "navn": "fjellkjedeISjø",
+              "visningsnavn": "Fjellkjede i sjø",
+              "beskrivelse": "Lengre, sammenhengende undersjøisk fjellformasjon.",
+              "tags": {}
+            },
+            {
+              "kode": "4416",
+              "navn": "sadelISjø",
+              "visningsnavn": "Sadel i sjø",
+              "beskrivelse": "Undersjøisk skar mellom to høyere topper/rygger.",
+              "tags": {}
+            },
+            {
+              "kode": "4417",
+              "navn": "sokkelISjø",
+              "visningsnavn": "Sokkel i sjø",
+              "beskrivelse": "Undersjøisk fjellfot.",
+              "tags": {}
+            },
+            {
+              "kode": "4418",
+              "navn": "vulkanISjø",
+              "visningsnavn": "Vulkan i sjø",
+              "beskrivelse": "Vulkan eller slamvulkan på havbunnen.",
+              "tags": {}
+            },
+            {
+              "kode": "4419",
+              "navn": "platåISjø",
+              "visningsnavn": "Platå i sjø",
+              "beskrivelse": "Stor, flat forhøyning som skiller seg fra havbunnen omkring.",
+              "tags": {}
+            },
+            {
+              "kode": "4420",
+              "navn": "kontinentalsokkel",
+              "visningsnavn": "Kontinentalsokkel",
+              "beskrivelse": "Område med grunt hav rundt kontinentene. Ofte brukt om et lands økonomiske interessesone til sjøs.",
+              "tags": {}
+            },
+            {
+              "kode": "4421",
+              "navn": "gass-OljefeltISjø",
+              "tidlnavn": "gassOljefeltISjø",
+              "visningsnavn": "Gass-/oljefelt i sjø",
+              "beskrivelse": "Navngitt gass- eller oljefelt i havet.",
+              "tags": {}
+            },
+            {
+              "kode": "4422",
+              "navn": "bassengISjø",
+              "visningsnavn": "Basseng i sjø",
+              "beskrivelse": "Vid, undersjøisk dal.",
+              "tags": {}
+            },
+            {
+              "kode": "4423",
+              "navn": "havdyp",
+              "visningsnavn": "Havdyp",
+              "beskrivelse": "Stort, dypt område i havet.",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "kode": "4500",
+          "navn": "detaljISjø",
+          "visningsnavn": "Detalj i sjø",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver detaljer i sjøen.",
+          "navnetyper": [
+            {
+              "kode": "4501",
+              "navn": "sjødetalj",
+              "visningsnavn": "Sjødetalj",
+              "beskrivelse": "Detalj som ikke dekkes av andre sjø-navneobjekttyper.",
+              "tags": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kode": "5000",
+      "navn": "bebyggelse",
+      "visningsnavn": "Bebyggelse",
+      "beskrivelse": "Alle grupper som er relevante under hovedgruppe bebyggelse. Tilsvarer Inspire temaet 'building' og 'populatedPlace'.",
+      "navnetypeGrupper": [
+        {
+          "kode": "5100",
+          "navn": "bebyggelsesområder",
+          "visningsnavn": "Bebyggelsesområder",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver områder med flere bygninger samlet innenfor et begrenset område.",
+          "navnetyper": [
+            {
+              "kode": "5101",
+              "navn": "by",
+              "visningsnavn": "By",
+              "beskrivelse": "Tettbygd sted som er større og (til dels) innehar viktigere funksjoner enn andre tettbygde steder / tettsteder.",
+              "tags": {
+                "place": "town"
+              }
+            },
+            {
+              "kode": "5102",
+              "navn": "bydel",
+              "visningsnavn": "Bydel",
+              "beskrivelse": "Kulturmessig del av by.",
+              "tags": {
+                "place": "suburb"
+              }
+            },
+            {
+              "kode": "5103",
+              "navn": "tettsted",
+              "visningsnavn": "Tettsted",
+              "beskrivelse": "Mindre, bymessig bebygd område med sentrumskarakter.",
+              "tags": {
+                "place": "village"
+              }
+            },
+            {
+              "kode": "5104",
+              "navn": "tettsteddel",
+              "visningsnavn": "Tettsteddel",
+              "beskrivelse": "Kulturmessig del av tettsted.",
+              "tags": {
+                "place": "quarter"
+              }
+            },
+            {
+              "kode": "5105",
+              "navn": "tettbebyggelse",
+              "visningsnavn": "Tettbebyggelse",
+              "beskrivelse": "Bebygd område uten sentrumskarakter.",
+              "tags": {
+                "place": "quarter",
+                "fixme": "consider place=suburb, village or hamlet"
+              }
+            },
+            {
+              "kode": "5106",
+              "navn": "bygdelagBygd",
+              "tidlnavn": "bygdelag",
+              "visningsnavn": "Bygdelag (bygd)",
+              "beskrivelse": "Stort, uregulert gards- og boligområde.",
+              "tags": {
+                "place": "village",
+                "fixme": "consider place=hamlet"
+              }
+            },
+            {
+              "kode": "5107",
+              "navn": "grend",
+              "visningsnavn": "Grend",
+              "beskrivelse": "Mindre uregulert gards- og boligområde.",
+              "tags": {
+                "place": "hamlet"
+              }
+            },
+            {
+              "kode": "5108",
+              "navn": "boligfelt",
+              "visningsnavn": "Boligfelt",
+              "beskrivelse": "Regulert boligområde.",
+              "tags": {
+                "place": "quarter"
+              }
+            },
+            {
+              "kode": "5109",
+              "navn": "hyttefelt",
+              "visningsnavn": "Hyttefelt",
+              "beskrivelse": "Offentlig eller privat hyttefelt. Regulert område med høy utnyttelsesgrad.",
+              "tags": {
+                "place": "neighbourhood"
+              }
+            },
+            {
+              "kode": "5110",
+              "navn": "industriområde",
+              "visningsnavn": "Industriområde",
+              "beskrivelse": "Større, sammenhengende område til industri- og næringsformål.",
+              "tags": {
+                "place": "neighbourhood"
+              }
+            },
+            {
+              "kode": "5111",
+              "navn": "historiskBosetting",
+              "visningsnavn": "Historisk bosetting",
+              "beskrivelse": "Ubebodd eller forlatt bosetting med bestående bygningsmasse eller ruiner.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "5112",
+              "navn": "torg",
+              "visningsnavn": "Torg",
+              "beskrivelse": "Stor, åpen plass i en by.",
+              "tags": {
+                "place": "square"
+              }
+            },
+            {
+              "kode": "5113",
+              "navn": "tuft",
+              "visningsnavn": "Tuft",
+              "beskrivelse": "Sted som har hatt bebyggelse, men som antagelig ikke har vært bebodd. Ruin.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "5200",
+          "navn": "gardsbebyggelse",
+          "visningsnavn": "Gardsbebyggelse",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver områder med samling av bebyggelse som hovedsakelig er knyttet til landbruk.",
+          "navnetyper": [
+            {
+              "kode": "5201",
+              "navn": "navnegard",
+              "visningsnavn": "Navnegard",
+              "beskrivelse": "Opprinnelig navn fra før garden ble oppdelt i gards- og bruksenheter. Navnegardens utbredelse kan omfatte flere enn ett gardsnummer.",
+              "tags": {
+                "place": "hamlet"
+              }
+            },
+            {
+              "kode": "5202",
+              "navn": "gard",
+              "visningsnavn": "Gard",
+              "beskrivelse": "Felles navn for et helt gardsnummer (jf. § 8 i lov om stadnamn).",
+              "tags": {
+                "place": "farm",
+                "fixme": "consider place=hamlet"
+              }
+            },
+            {
+              "kode": "5203",
+              "navn": "bruk",
+              "visningsnavn": "Bruk",
+              "beskrivelse": "Navn på (landbruks)eiendom med ett eller flere bruksnummer under ett gardsnummer, jf. lov om stadnamn §§ 2 og 8.",
+              "tags": {
+                "place": "farm"
+              }
+            },
+            {
+              "kode": "5204",
+              "navn": "seterStøl",
+              "tidlnavn": "seter",
+              "visningsnavn": "Seter/støl",
+              "beskrivelse": "Enklere landbruksbebyggelse med hus. Kan ha periodisk fast bosetting, vanligvis sommerstid.",
+              "tags": {
+                "place": "isolated_dwelling",
+                "historic": "shieling"
+              }
+            },
+            {
+              "kode": "5205",
+              "navn": "byggForJordbrukFiskeOgFangst",
+              "tidlnavn": "byggForJordbrukFiskeFangst",
+              "visningsnavn": "Bygg for jordbruk, fiske og fangst",
+              "beskrivelse": "Til primærnæring, f.eks. naust, uthus, sommerfjøs eller gamme.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "5206",
+              "navn": "eiendom",
+              "visningsnavn": "Eiendom",
+              "beskrivelse": "Navn på eiendomer som ikke er bruksnavn, ev. felles stedsnavn for flere eiendommer.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "5207",
+              "navn": "gjerde",
+              "visningsnavn": "Gjerde",
+              "beskrivelse": "Oppsatt stengsel, vern, skille mellom jordstykker, eiendommer eller beiteområder.",
+              "tags": {
+                "barrier": "fence"
+              }
+            },
+            {
+              "kode": "5208",
+              "navn": "eiendomsteig",
+              "visningsnavn": "Eiendomsteig",
+              "beskrivelse": "Et stykke eiendom som ikke henger sammen med resten av eiendommen.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "5209",
+              "navn": "stølsSetereiendom",
+              "visningsnavn": "Støls-/setereiendom",
+              "beskrivelse": "Matrikulert seternavn eller enkeltseter innenfor et seterområde",
+              "tags": {
+                "place": "isolated_dwelling",
+                "historic": "shieling"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "5300",
+          "navn": "bolighus",
+          "visningsnavn": "Bolighus",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver enkeltbygninger til boligformål som er bebodd midlertidig eller permanent.",
+          "navnetyper": [
+            {
+              "kode": "5301",
+              "navn": "eneboligMindreBoligbygg",
+              "tidlnavn": "mindreBoligbygg",
+              "visningsnavn": "Enebolig/mindre boligbygg",
+              "beskrivelse": "Navn på mindre eiendom for fast bosetting. Hovedsakelig eiendom hvor eier kan bestemme skrivemåten (jf. § 8 i lov om stadnamn og § 54 i matrikkelforskriften). Kan også omfatte eget navn på bygg, eller våningshus/gardsbruk som ikke er gitt eget matrikkelnummer.",
+              "tags": {
+                "place": "isolated_dwelling"
+              }
+            },
+            {
+              "kode": "5302",
+              "navn": "fritidsbolig",
+              "visningsnavn": "Fritidsbolig",
+              "beskrivelse": "Eget navn på hytter og hus som ikke er ment for fast bosetting.",
+              "tags": {
+                "place": "isolated_dwelling"
+              }
+            },
+            {
+              "kode": "5303",
+              "navn": "boligblokk",
+              "visningsnavn": "Boligblokk",
+              "beskrivelse": "Stort (bolig)hus av mur, betong med over fire boliger som har felles trapp(er) eller heis(er).",
+              "tags": {
+                "building": "apartments"
+              }
+            },
+            {
+              "kode": "5304",
+              "navn": "borettslag",
+              "visningsnavn": "Borettslag",
+              "beskrivelse": "Bofellesskap i blokk eller flerbebyggelse.",
+              "tags": {
+                "place": "neighbourhood"
+              }
+            },
+            {
+              "kode": "5305",
+              "navn": "gammelBosettingsplass",
+              "visningsnavn": "Gammel bosettingsplass",
+              "beskrivelse": "Nedlagt bruk, seter, boplass hvor bygningen(e) er borte eller bare tuftene er tilbake.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "5400",
+          "navn": "næring",
+          "visningsnavn": "Næring",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver enkeltbygninger til næringsformål.",
+          "navnetyper": [
+            {
+              "kode": "5401",
+              "navn": "forretningsbygg",
+              "visningsnavn": "Forretningsbygg",
+              "beskrivelse": "Bygning for kontor-, salg- og servicevirksomhet.",
+              "tags": {
+                "building": "commercial"
+              }
+            },
+            {
+              "kode": "5402",
+              "navn": "serveringssted",
+              "visningsnavn": "Serveringssted",
+              "beskrivelse": "Serveringssted uten overnatting.",
+              "tags": {
+                "amenity": "cafe"
+              }
+            },
+            {
+              "kode": "5403",
+              "navn": "hotell",
+              "visningsnavn": "Hotell",
+              "beskrivelse": "Større, offentlig godkjent overnattingssted.",
+              "tags": {
+                "tourism": "hotel"
+              }
+            },
+            {
+              "kode": "5404",
+              "navn": "pensjonat",
+              "visningsnavn": "Pensjonat",
+              "beskrivelse": "Mindre, offentlig godkjent overnattingssted.",
+              "tags": {
+                "tourism": "guest_house"
+              }
+            },
+            {
+              "kode": "5405",
+              "navn": "turisthytte",
+              "visningsnavn": "Turisthytte",
+              "beskrivelse": "Overnattingssted utenfor tettbygd område.",
+              "tags": {
+                "tourism": "wilderness_hut",
+                "fixme": "consider tourism=alpine_hut or tourism=chalet"
+              }
+            },
+            {
+              "kode": "5406",
+              "navn": "campingplass",
+              "visningsnavn": "Campingplass",
+              "beskrivelse": "Alle typer, med/uten campinghytter, campingvogner og telt.",
+              "tags": {
+                "tourism": "camp_site"
+              }
+            },
+            {
+              "kode": "5407",
+              "navn": "annenIndustri-OgLagerbygning",
+              "tidlnavn": "annenIndustriOgLagerbygning",
+              "visningsnavn": "Annen industri- og lagerbygning",
+              "beskrivelse": "Mindre industri- og produksjonsbedrift eller lager.",
+              "tags": {
+                "building": "industrial"
+              }
+            },
+            {
+              "kode": "5408",
+              "navn": "fabrikk",
+              "visningsnavn": "Fabrikk",
+              "beskrivelse": "Større industrivirksomhet.",
+              "tags": {
+                "building": "industrial",
+                "industrial": "factory"
+              }
+            },
+            {
+              "kode": "5409",
+              "navn": "oppdrettsanlegg",
+              "visningsnavn": "Oppdrettsanlegg",
+              "beskrivelse": "Anlegg for foring og stell av husdyr til de kan settes i produksjon eller slaktes, oppforing av fisk (og andre sjødyr) i fangenskap.",
+              "tags": {
+                "landuse": "aquaculture"
+              }
+            },
+            {
+              "kode": "5410",
+              "navn": "vannverk",
+              "visningsnavn": "Vannverk",
+              "beskrivelse": "Inntak for drikkevann/vanningsvann.",
+              "tags": {
+                "man_made": "water_works"
+              }
+            },
+            {
+              "kode": "5411",
+              "navn": "boinstitusjon",
+              "visningsnavn": "Boinstitusjon",
+              "beskrivelse": "Dekker både tilrettelagte boliger og asyl-/flykningmottak.",
+              "tags": {
+                "amenity": "social_facility",
+                "social_facility": "group_home"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "5500",
+          "navn": "institusjoner",
+          "visningsnavn": "Institusjoner",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver enkeltbygninger eller mindre samlinger av bygninger av institusjonell karakter.",
+          "navnetyper": [
+            {
+              "kode": "5501",
+              "navn": "rådhus",
+              "visningsnavn": "Rådhus",
+              "beskrivelse": "Administrasjonssenteret i den administrative enheten, f.eks. stat, fylke, kommune.",
+              "tags": {
+                "amenity": "townhall"
+              }
+            },
+            {
+              "kode": "5502",
+              "navn": "vaktstasjonBeredsskapsbygning",
+              "tidlnavn": "beredsskapsbygning",
+              "visningsnavn": "Vaktstasjon/beredsskapsbygning",
+              "beskrivelse": "Bygning for politi/brann/los/toll/ambulanse/fly- og skipsovervåkning.",
+              "tags": {
+                "building": "civic"
+              }
+            },
+            {
+              "kode": "5503",
+              "navn": "sykehus",
+              "visningsnavn": "Sykehus",
+              "beskrivelse": "Offentlig og privat sykehus.",
+              "tags": {
+                "amenity": "hospital"
+              }
+            },
+            {
+              "kode": "5504",
+              "navn": "helseinstitusjon",
+              "visningsnavn": "Helseinstitusjon",
+              "beskrivelse": "Aldershjem, rekreasjonshjem og lignende.",
+              "tags": {
+                "amenity": "nursing_home"
+              }
+            },
+            {
+              "kode": "5505",
+              "navn": "barnehage",
+              "visningsnavn": "Barnehage",
+              "beskrivelse": "Offentlig og privat barnehage.",
+              "tags": {
+                "amenity": "kindergarten"
+              }
+            },
+            {
+              "kode": "5506",
+              "navn": "skole",
+              "visningsnavn": "Skole",
+              "beskrivelse": "Offentlig og privat skole.",
+              "tags": {
+                "amenity": "school"
+              }
+            },
+            {
+              "kode": "5507",
+              "navn": "universitetHøgskole",
+              "visningsnavn": "Universitet/høgskole",
+              "beskrivelse": "Offentlig og privat høgskole og universitet.",
+              "tags": {
+                "amenity": "university"
+              }
+            },
+            {
+              "kode": "5508",
+              "navn": "forskningsstasjon",
+              "visningsnavn": "Forskningsstasjon",
+              "beskrivelse": "Bemannet forskningsstasjon eller meteorologisk stasjon med bygningsmasse.",
+              "tags": {
+                "building": "yes"
+              }
+            },
+            {
+              "kode": "5509",
+              "navn": "fengsel",
+              "visningsnavn": "Fengsel",
+              "beskrivelse": "Bygning der arresterte eller dømte personer soner straff.",
+              "tags": {
+                "amenity": "prison"
+              }
+            },
+            {
+              "kode": "5510",
+              "navn": "militærtByggAnlegg",
+              "tidlnavn": "militærtAnlegg",
+              "visningsnavn": "Militært bygg/anlegg",
+              "beskrivelse": "Militærleir.",
+              "tags": {
+                "landuse": "military"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "5600",
+          "navn": "fritidsanlegg",
+          "visningsnavn": "Fritidsanlegg",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver bygningsmessige og naturlige anlegg for rekreasjon og fritidsaktiviteter.",
+          "navnetyper": [
+            {
+              "kode": "5601",
+              "navn": "park",
+              "visningsnavn": "Park",
+              "beskrivelse": "Kultivert grøntområde i by/tettsted.",
+              "tags": {
+                "leisure": "park"
+              }
+            },
+            {
+              "kode": "5602",
+              "navn": "idrettsanlegg",
+              "visningsnavn": "Idrettsanlegg",
+              "beskrivelse": "Alle typer utendørsanlegg for idrett.",
+              "tags": {
+                "leisure": "pitch"
+              }
+            },
+            {
+              "kode": "5603",
+              "navn": "idrettshall",
+              "visningsnavn": "Idrettshall",
+              "beskrivelse": "Alle typer innendørsanlegg, f.eks. ishall, svømmehall, idrettshall og ridehall.",
+              "tags": {
+                "amenity": "sports_centre"
+              }
+            },
+            {
+              "kode": "5604",
+              "navn": "fornøyelsespark",
+              "visningsnavn": "Fornøyelsespark",
+              "beskrivelse": "Store, regulerte anlegg.",
+              "tags": {
+                "tourism": "theme_park"
+              }
+            },
+            {
+              "kode": "5605",
+              "navn": "skiheis",
+              "visningsnavn": "Skiheis",
+              "beskrivelse": "Skitrekk og stolheis i skianlegg.",
+              "tags": {
+                "aerialway": "drag_lift",
+                "fixme": "consider the other aerialway types"
+              }
+            },
+            {
+              "kode": "5606",
+              "navn": "alpinanlegg",
+              "visningsnavn": "Alpinanlegg",
+              "beskrivelse": "Anlegg for slalåm, utfor, snøbrett osv.",
+              "tags": {
+                "landuse": "winter_sports",
+                "piste:type": "downhill"
+              }
+            },
+            {
+              "kode": "5607",
+              "navn": "badeplass",
+              "visningsnavn": "Badeplass",
+              "beskrivelse": "Offentlig eller privat badeplass.",
+              "tags": {
+                "leisure": "swimming_area",
+                "place": "locality",
+                "fixme": "consider natural=beach + surface=sand"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kode": "6000",
+      "navn": "infrastruktur",
+      "visningsnavn": "Infrastruktur",
+      "beskrivelse": "Alle grupper som er relevante under hovedgruppe infrastruktur. Tilsvarer Inspire temaet 'transportNetwork'.",
+      "navnetypeGrupper": [
+        {
+          "kode": "6100",
+          "navn": "veg",
+          "visningsnavn": "Veg",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver objekter som brukes til ferdsel, både motorisert og til fots.",
+          "navnetyper": [
+            {
+              "kode": "6101",
+              "navn": "matrikkeladressenavn",
+              "visningsnavn": "Matrikkeladressenavn",
+              "beskrivelse": "Et stedsnavn som inngår i den offiselle adressen ved matrikkeladresser, jf. § 55 tredje ledd i matrikkelforskriften.",
+              "tags": {}
+            },
+            {
+              "kode": "6102",
+              "navn": "adressetilleggsnavn",
+              "visningsnavn": "Adressetilleggsnavn",
+              "beskrivelse": "Et stedsnavn som er en del av den offisielle (veg-)adressen, jf. § 54 i matrikkelforskriften, vanligvis bruksnavn eller sjeldnere bygnings-/institusjonsnavn.",
+              "tags": {}
+            },
+            {
+              "kode": "6103",
+              "navn": "adressenavn",
+              "visningsnavn": "Adressenavn",
+              "beskrivelse": "Offisielt adressenavn, veg-/gatenavn eller områdenavn, jf. § 2 bokstav e i matrikkelforskriften.",
+              "tags": {}
+            },
+            {
+              "kode": "6104",
+              "navn": "traktorveg",
+              "visningsnavn": "Traktorveg",
+              "beskrivelse": "Driftsveg anlagt for traktorbruk. Ikke fremkommelig med vanlig personbil.",
+              "tags": {
+                "highway": "track",
+                "fixme": "consider highway=path"
+              }
+            },
+            {
+              "kode": "6105",
+              "navn": "sti",
+              "visningsnavn": "Sti",
+              "beskrivelse": "Stistrekning, råk, slepe (gammel drifteveg), reindriftsveg.",
+              "tags": {
+                "highway": "path"
+              }
+            },
+            {
+              "kode": "6106",
+              "navn": "vegkryss",
+              "visningsnavn": "Vegkryss",
+              "beskrivelse": "Allment kjent vegkryss i alle typer veger og gater.",
+              "tags": {
+                "junction": "yes",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6107",
+              "navn": "vegsving",
+              "visningsnavn": "Vegsving",
+              "beskrivelse": "Allment kjent sving på alle typer veger og gater.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6108",
+              "navn": "bakkeVeg",
+              "tidlnavn": "bakkeIVeg",
+              "visningsnavn": "Bakke (Veg)",
+              "beskrivelse": "Allment kjent bakke på alle typer veger og gater.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6109",
+              "navn": "vegstrekning",
+              "visningsnavn": "Vegstrekning",
+              "beskrivelse": "Navn på vegstrekning som ikke nødvendigvis har et formelt vedtak, og ikke er det samme som adressenavnet. Det kan være f.eks. turistrekninger og ringveger rundt en by.",
+              "tags": {}
+            },
+            {
+              "kode": "6110",
+              "navn": "vad",
+              "visningsnavn": "Vad",
+              "beskrivelse": "Vadested, vanligvis der en stistrekning krysser elv, bekk eller vann.",
+              "tags": {
+                "ford": "yes",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6111",
+              "navn": "grind",
+              "visningsnavn": "Grind",
+              "beskrivelse": "Port i gjerde.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6112",
+              "navn": "tømmervelte",
+              "visningsnavn": "Tømmervelte",
+              "beskrivelse": "Midlertidig lagringsplass for tømmer.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6113",
+              "navn": "busstopp",
+              "visningsnavn": "Busstopp",
+              "beskrivelse": "Stoppested for rutegående vegtrafikk.",
+              "tags": {
+                "highway": "bus_stop"
+              }
+            },
+            {
+              "kode": "6114",
+              "navn": "parkeringsplass",
+              "visningsnavn": "Parkeringsplass",
+              "beskrivelse": "Tomt (eller bygning) for parkering av biler.",
+              "tags": {
+                "amenity": "parking"
+              }
+            },
+            {
+              "kode": "6115",
+              "navn": "busstasjon",
+              "visningsnavn": "Busstasjon",
+              "beskrivelse": "Større busstopp der flere busslinjer kobles, knutepunkt.",
+              "tags": {
+                "amenity": "bus_station"
+              }
+            },
+            {
+              "kode": "6116",
+              "navn": "fjellovergang",
+              "visningsnavn": "Fjellovergang",
+              "beskrivelse": "Vegstrekning som krysser værutsatt fjellparti.",
+              "tags": {
+                "mountain_pass": "yes"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "6200",
+          "navn": "bane",
+          "visningsnavn": "Bane",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver funksjoner knyttet til skinnegående kjøretøy.",
+          "navnetyper": [
+            {
+              "kode": "6201",
+              "navn": "stasjon",
+              "visningsnavn": "Stasjon",
+              "beskrivelse": "Stoppested for jernbane, tunnelbane og/eller trikk. Som regel betjent.",
+              "tags": {
+                "railway": "station",
+                "train": "yes"
+              }
+            },
+            {
+              "kode": "6202",
+              "navn": "holdeplass",
+              "visningsnavn": "Holdeplass",
+              "beskrivelse": "Ubetjent stoppested for jernbane, tunnelbane og/eller trikk.",
+              "tags": {
+                "railway": "halt",
+                "train": "yes"
+              }
+            },
+            {
+              "kode": "6203",
+              "navn": "banestrekning",
+              "visningsnavn": "Banestrekning",
+              "beskrivelse": "Jernbanestrekning, tunnelbane eller trikkelinje/-strekning.",
+              "tags": {}
+            },
+            {
+              "kode": "6204",
+              "navn": "jernbanebru",
+              "visningsnavn": "Jernbanebru",
+              "beskrivelse": "Bru for jernbane.",
+              "tags": {
+                "bridge": "yes",
+                "layer": "1"
+              }
+            },
+            {
+              "kode": "6205",
+              "navn": "jernbanetunnel",
+              "visningsnavn": "Jernbanetunnel",
+              "beskrivelse": "Tunnel for jernbane. Bruk kurve/linje for tunnelstrekning på jerbane eller punkt for navn på tunnelåpning/kort tunnel.",
+              "tags": {
+                "tunnel": "yes",
+                "layer": "-1"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "6300",
+          "navn": "luftfart",
+          "visningsnavn": "Luftfart",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver anlegg hvor luftfartøy lander og tar av.",
+          "navnetyper": [
+            {
+              "kode": "6301",
+              "navn": "flyplass",
+              "visningsnavn": "Flyplass",
+              "beskrivelse": "Offentlig godkjent, avgrenset område med start- og landingsplass for fly.",
+              "tags": {
+                "aeroway": "aerodrome"
+              }
+            },
+            {
+              "kode": "6302",
+              "navn": "landingsplass",
+              "visningsnavn": "Landingsplass",
+              "beskrivelse": "Landingsplass for privatfly.",
+              "tags": {
+                "aeroway": "airstrip"
+              }
+            },
+            {
+              "kode": "6303",
+              "navn": "helikopterlandingsplass",
+              "visningsnavn": "Helikopterlandingsplass",
+              "beskrivelse": "Landingsplass for helikopter.",
+              "tags": {
+                "aeroway": "heliport"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "6400",
+          "navn": "sjøfart",
+          "visningsnavn": "Sjøfart",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver anlegg som har tilknytning til sjøfart.",
+          "navnetyper": [
+            {
+              "kode": "6401",
+              "navn": "farledSkipslei",
+              "tidlnavn": "skipslei",
+              "visningsnavn": "Farled/skipslei",
+              "beskrivelse": "Allment kjent seglingslei/farvannsområde med dybdeforhold passende for skip av en viss størrelse.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6402",
+              "navn": "ferjestrekning",
+              "visningsnavn": "Ferjestrekning",
+              "beskrivelse": "Ferjesamband som inngår i områdets samferdselsnett.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6403",
+              "navn": "havn",
+              "visningsnavn": "Havn",
+              "beskrivelse": "Sted der fartøy laster, losser eller søker ly for vær og sjø.",
+              "tags": {
+                "landuse": "harbour",
+                "seamark:type": "harbour"
+              }
+            },
+            {
+              "kode": "6404",
+              "navn": "kai",
+              "visningsnavn": "Kai",
+              "beskrivelse": "Større, fastbygd bryggeanlegg.",
+              "tags": {
+                "man_made": "quay",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6405",
+              "navn": "brygge",
+              "visningsnavn": "Brygge",
+              "beskrivelse": "Mindre, fastbygd bryggeanlegg.",
+              "tags": {
+                "man_made": "quay",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6406",
+              "navn": "ferjekai",
+              "visningsnavn": "Ferjekai ",
+              "beskrivelse": "Ferjekai i fast regulert ferjesamband.",
+              "tags": {
+                "amenity": "ferry_terminal"
+              }
+            },
+            {
+              "kode": "6407",
+              "navn": "ankringsplass",
+              "visningsnavn": "Ankringsplass",
+              "beskrivelse": "Opplagsplass for store fartøy.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6408",
+              "navn": "småbåthavn",
+              "visningsnavn": "Småbåthavn",
+              "beskrivelse": "Regulert havneanlegg for småbåter.",
+              "tags": {
+                "leisure": "marina"
+              }
+            },
+            {
+              "kode": "6409",
+              "navn": "stø",
+              "visningsnavn": "Stø",
+              "beskrivelse": "Båtplass i vannkanten uten naust.",
+              "tags": {
+                "mooring": "yes",
+                "place": "locality",
+                "fixme": "verify maritime location"
+              }
+            },
+            {
+              "kode": "6410",
+              "navn": "utstikker",
+              "visningsnavn": "Utstikker",
+              "beskrivelse": "Flytende bryggeanlegg.",
+              "tags": {
+                "man_made": "pier",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6411",
+              "navn": "molo",
+              "visningsnavn": "Molo",
+              "beskrivelse": "Fast byggverk, utstikkende voll i sjøen.",
+              "tags": {
+                "man_made": "breakwater",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6412",
+              "navn": "sluse",
+              "visningsnavn": "Sluse",
+              "beskrivelse": "Kunstig løfteanretning for båter i vassdrag.",
+              "tags": {
+                "waterway": "lock_gate"
+              }
+            },
+            {
+              "kode": "6413",
+              "navn": "kanal",
+              "visningsnavn": "Kanal",
+              "beskrivelse": "Kunstig eller naturlig vannvei eller gjennomseiling.",
+              "tags": {
+                "waterway": "canal"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "6500",
+          "navn": "navigasjon",
+          "visningsnavn": "Navigasjon",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver navigasjonshjelpemidler for skipsfart.",
+          "navnetyper": [
+            {
+              "kode": "6501",
+              "navn": "fyrstasjon",
+              "visningsnavn": "Fyrstasjon",
+              "beskrivelse": "Automatisk og ubemannet. Et fast anlegg hvor linse og lyskilde er anbrakt i hus, tårn eller spesielt bygg. Ikke flytende.",
+              "tags": {}
+            },
+            {
+              "kode": "6502",
+              "navn": "fyrlykt",
+              "visningsnavn": "Fyrlykt",
+              "beskrivelse": "Linse og lyskilde anbrakt i hus eller liknende. Ikke flytende.",
+              "tags": {}
+            },
+            {
+              "kode": "6503",
+              "navn": "lanterne",
+              "visningsnavn": "Lanterne",
+              "beskrivelse": "En innretning hvor linsen med eller uten beskyttelsesglass utgjør en del av den bærende del av konstruksjonen. Ikke flytende.",
+              "tags": {}
+            },
+            {
+              "kode": "6504",
+              "navn": "jernstang",
+              "visningsnavn": "Jernstang",
+              "beskrivelse": "Fast sjømerke av typen jernstang eller jernsøyle.",
+              "tags": {}
+            },
+            {
+              "kode": "6505",
+              "navn": "stake",
+              "visningsnavn": "Stake",
+              "beskrivelse": "Flytende sjømerke. Ofte kalt bøyestake, stakebøye, kubbestake.",
+              "tags": {}
+            },
+            {
+              "kode": "6506",
+              "navn": "lysbøye",
+              "visningsnavn": "Lysbøye",
+              "beskrivelse": "Flytende innretning for farvannsmerking med en lanterne som lyskilde.",
+              "tags": {}
+            },
+            {
+              "kode": "6507",
+              "navn": "båke",
+              "visningsnavn": "Båke",
+              "beskrivelse": "Fast sjømerke. Sprinkelverk bygget i tre eller metall.",
+              "tags": {}
+            },
+            {
+              "kode": "6508",
+              "navn": "overett",
+              "visningsnavn": "Overett",
+              "beskrivelse": "To sjømerker, med eller uten lys, som, når de peiles på linje, viser kurs for gjennomseiling.",
+              "tags": {}
+            },
+            {
+              "kode": "6509",
+              "navn": "sjøvarde",
+              "visningsnavn": "Sjøvarde",
+              "beskrivelse": "Varde av stein eller betong primært for navigering til sjøs.",
+              "tags": {}
+            },
+            {
+              "kode": "6510",
+              "navn": "varde",
+              "visningsnavn": "Varde",
+              "beskrivelse": "(Som oftest) oppstablet stein som skal markere sti, grensemerke, trigonometrisk punkt o.l.",
+              "tags": {
+                "man_made": "cairn",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6511",
+              "navn": "sjømerkeMedIndirekteBelysning",
+              "visningsnavn": "Sjømerke med indirekte belysning",
+              "beskrivelse": "Sjømerke med indirekte belyst struktur, skilt, fundament eller plasseringspunkt.",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "kode": "6600",
+          "navn": "samferdselsanlegg",
+          "visningsnavn": "Samferdselsanlegg",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver anlegg som brukes i forbindelse med transport, både for kjøretøy og til fots.",
+          "navnetyper": [
+            {
+              "kode": "6601",
+              "navn": "tunnel",
+              "visningsnavn": "Tunnel",
+              "beskrivelse": "Vanlig tunnel på veg. Bruk kurve/linje for tunnelstrekning eller punkt for navn på tunnelåpning.",
+              "tags": {
+                "tunnel": "yes",
+                "layer": "-1"
+              }
+            },
+            {
+              "kode": "6602",
+              "navn": "bru",
+              "visningsnavn": "Bru",
+              "beskrivelse": "Både på veg og jernbane.",
+              "tags": {
+                "bridge": "yes",
+                "layer": "1"
+              }
+            },
+            {
+              "kode": "6603",
+              "navn": "klopp",
+              "visningsnavn": "Klopp",
+              "beskrivelse": "Liten gangbru av stokker og/eller stein over bekker og elver, i myr eller i fjæra.",
+              "tags": {
+                "bridge": "yes",
+                "layer": "1"
+              }
+            },
+            {
+              "kode": "6604",
+              "navn": "bomstasjon",
+              "visningsnavn": "Bomstasjon",
+              "beskrivelse": "Større bomanlegg på offentlig veg.",
+              "tags": {
+                "barrier": "toll_booth"
+              }
+            },
+            {
+              "kode": "6605",
+              "navn": "vegbom",
+              "visningsnavn": "Vegbom",
+              "beskrivelse": "Mindre bomanlegg på privat veg.",
+              "tags": {
+                "barrier": "lift_gate",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "6606",
+              "navn": "rasteplass",
+              "visningsnavn": "Rasteplass",
+              "beskrivelse": "Rasteplass definert og lagt til rette av Statens vegvesen eller annen offentlig myndighet.",
+              "tags": {
+                "highway": "rest_area"
+              }
+            },
+            {
+              "kode": "6607",
+              "navn": "garasjeHangarbygg",
+              "visningsnavn": "Garasje/hangarbygg",
+              "beskrivelse": "Trikkestall, bussgarasje, flyhangar eller lokomotivstall.",
+              "tags": {
+                "amenity": "parking"
+              }
+            },
+            {
+              "kode": "6608",
+              "navn": "fjellheis",
+              "visningsnavn": "Fjellheis",
+              "beskrivelse": "Gondolbane og trallebane for frakt av folk.",
+              "tags": {
+                "aerialway": "gondola"
+              }
+            },
+            {
+              "kode": "6609",
+              "navn": "taubane",
+              "visningsnavn": "Taubane",
+              "beskrivelse": "Heis til frakt av gods/høy, ikke persontrafikk.",
+              "tags": {
+                "aerialway": "goods"
+              }
+            },
+            {
+              "kode": "6610",
+              "navn": "overbygg",
+              "visningsnavn": "Overbygg",
+              "beskrivelse": "Overbygg over veg eller jernbane for beskyttelse mot ras, for å gjemme f.eks. veg i bebyggelseområde eller som viltoverganger.",
+              "tags": {
+                "tunnel": "avalanche_protector",
+                "layer": "-1"
+              }
+            },
+            {
+              "kode": "6611",
+              "navn": "mindreBrukonstruksjon",
+              "visningsnavn": "Mindre brukonstruksjon",
+              "beskrivelse": "Korte bruer eller kulverter hvor navnet er av liten allmenn interresse eller av teknisk art.",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "kode": "6700",
+          "navn": "energi",
+          "visningsnavn": "Energi",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver anlegg for energi produksjon og transport.",
+          "navnetyper": [
+            {
+              "kode": "6701",
+              "navn": "kraftstasjon",
+              "visningsnavn": "Kraftstasjon",
+              "beskrivelse": "Alle typer / alle størrelser til energiproduksjon (f.eks. el. og varme).",
+              "tags": {
+                "power": "plant",
+                "landuse": "industrial"
+              }
+            },
+            {
+              "kode": "6702",
+              "navn": "kraftledning",
+              "visningsnavn": "Kraftledning",
+              "beskrivelse": "Stor strømoverføringsledning.",
+              "tags": {}
+            },
+            {
+              "kode": "6703",
+              "navn": "kraftgateRørgate",
+              "tidlnavn": "kraftgate",
+              "visningsnavn": "Kraftgate (rørgate)",
+              "beskrivelse": "Store tilførselsrør for kraftanlegg.",
+              "tags": {
+                "man_made": "pipeline",
+                "substance": "water"
+              }
+            },
+            {
+              "kode": "6704",
+              "navn": "rørledning",
+              "visningsnavn": "Rørledning",
+              "beskrivelse": "Alle typer rørledninger: Olje, gass, vann o.l.",
+              "tags": {
+                "man_made": "pipeline"
+              }
+            },
+            {
+              "kode": "6705",
+              "navn": "kabel",
+              "visningsnavn": "Kabel",
+              "beskrivelse": "Alle typer kabler i sjø eller i ferskvann.",
+              "tags": {
+                "seamark:type": "cable_submarine"
+              }
+            },
+            {
+              "kode": "6706",
+              "navn": "oljeinstallasjon",
+              "visningsnavn": "Oljeinstallasjon",
+              "beskrivelse": "Stasjonær olje- og gassinstallasjon (fast eller flytende).",
+              "tags": {
+                "man_made": "offshore_platform",
+                "seamark:type": "platform"
+              }
+            },
+            {
+              "kode": "6707",
+              "navn": "vannstandsmåler",
+              "visningsnavn": "Vannstandsmåler",
+              "beskrivelse": "Innretning for å måle vann eller tidevannsnivå.",
+              "tags": {
+                "man_made": "monitoring_station",
+                "monitoring:water_Level": "yes"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "6800",
+          "navn": "kommunikasjon",
+          "visningsnavn": "Kommunikasjon",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver anlegg for radiokommunikasjon.",
+          "navnetyper": [
+            {
+              "kode": "6801",
+              "navn": "tV-Radio-EllerMobiltelefontårn",
+              "tidlnavn": "tVRadioMobiltelefontårn",
+              "visningsnavn": "TV-/radio- eller mobiltelefontårn",
+              "beskrivelse": "Alle typer bakkebasert telekommunikasjon.",
+              "tags": {
+                "man_made": "tower",
+                "tower:type": "communications"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kode": "7000",
+      "navn": "offentligAdministrasjon",
+      "visningsnavn": "Offentlig administrasjon",
+      "beskrivelse": "Alle grupper som er relevante under hovedgruppe offentlig administrasjon. Tilsvarer Inspire temaet 'administrativUnit'.",
+      "navnetypeGrupper": [
+        {
+          "kode": "7100",
+          "navn": "administrativeIndelinger",
+          "visningsnavn": "Administrative indelinger",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver alle typer administrative inndelinger.",
+          "navnetyper": [
+            {
+              "kode": "7101",
+              "navn": "nasjon",
+              "visningsnavn": "Nasjon",
+              "beskrivelse": "Offisielt navn på selvstendig stat eller land.",
+              "tags": {}
+            },
+            {
+              "kode": "7102",
+              "navn": "fylke",
+              "visningsnavn": "Fylke",
+              "beskrivelse": "Offisielt navn.",
+              "tags": {}
+            },
+            {
+              "kode": "7103",
+              "navn": "kommune",
+              "visningsnavn": "Kommune",
+              "beskrivelse": "Offisielt navn.",
+              "tags": {}
+            },
+            {
+              "kode": "7104",
+              "navn": "administrativBydel",
+              "visningsnavn": "Administrativ bydel",
+              "beskrivelse": "Offisielt navn på bydelsforvaltningen i et angitt område.",
+              "tags": {}
+            },
+            {
+              "kode": "7105",
+              "navn": "grunnkrets",
+              "visningsnavn": "Grunnkrets",
+              "beskrivelse": "Offisielt navn på grunnkrets.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "7106",
+              "navn": "skolekrets",
+              "visningsnavn": "Skolekrets",
+              "beskrivelse": "Skolekrets definert av kommunen.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "7107",
+              "navn": "valgkrets",
+              "visningsnavn": "Valgkrets",
+              "beskrivelse": "Valgkrets definert av kommunen.",
+              "tags": {}
+            },
+            {
+              "kode": "7108",
+              "navn": "sokn",
+              "visningsnavn": "Sokn",
+              "beskrivelse": "Kirkesokn i Den norske kirke.",
+              "tags": {
+                "place": "hamlet"
+              }
+            },
+            {
+              "kode": "7109",
+              "navn": "poststed",
+              "visningsnavn": "Poststed",
+              "beskrivelse": "Offisielt poststed/postnummerområde.",
+              "tags": {}
+            },
+            {
+              "kode": "7110",
+              "navn": "grensemerke",
+              "visningsnavn": "Grensemerke",
+              "beskrivelse": "Offisielt grensemerke: Varde, tre, stein, bolt, kors o.l.",
+              "tags": {
+                "man_made": "cairn",
+                "historic": "boundary_stone",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "7111",
+              "navn": "statistiskTettsted",
+              "visningsnavn": "Statistisk tettsted",
+              "beskrivelse": "Tettsted etter Statistisk sentralbyrås klassifisering som brukes for å lage statistikk over befolkning og tettsteder.",
+              "tags": {}
+            },
+            {
+              "kode": "7112",
+              "navn": "annenAdministrativInndeling",
+              "visningsnavn": "Annen administrativ inndeling",
+              "beskrivelse": "Andre administrative inndelinger som ikke tilhører øvrige navneobjekttyper.",
+              "tags": {}
+            },
+            {
+              "kode": "7113",
+              "navn": "reinbeitedistrikt",
+              "visningsnavn": "Reinbeitedistrikt",
+              "beskrivelse": "Reinbeitedistrikt.",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "kode": "7200",
+          "navn": "verne-OgBruksområder",
+          "tidlnavn": "verneOgBruksområder",
+          "visningsnavn": "Verne- og bruksområder",
+          "beskrivelse": "Samlegruppe for objekttyper som regulerer vern og bruksrettigheter.",
+          "navnetyper": [
+            {
+              "kode": "7201",
+              "navn": "verneområde",
+              "visningsnavn": "Verneområde",
+              "beskrivelse": "Et område med spesiell natur- og/eller kulturverdi som er formelt vedtatt vernet etter offentlig regelverk. Alle typer, både på sjø og land.",
+              "tags": {
+                "leisure": "nature_reserve",
+                "fixme": "consider boundary=protected_area and relevant protect_class if not nature reserve"
+              }
+            },
+            {
+              "kode": "7202",
+              "navn": "allmenning",
+              "visningsnavn": "Allmenning",
+              "beskrivelse": "Område hvor rettighetene er regulert og fordelt på flere.",
+              "tags": {
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "7203",
+              "navn": "skytefelt",
+              "visningsnavn": "Skytefelt",
+              "beskrivelse": "Militært sprengingsfelt, bombe- og skytefelt, både på land og sjø.",
+              "tags": {
+                "military": "range"
+              }
+            },
+            {
+              "kode": "7204",
+              "navn": "skytebane",
+              "visningsnavn": "Skytebane",
+              "beskrivelse": "Bane for øvelse el. konkurranse i skyting.",
+              "tags": {
+                "sport": "shooting",
+                "leisure": "pitch",
+                "fixme": "specify shooting=range, clay_pigeon etc"
+              }
+            },
+            {
+              "kode": "7205",
+              "navn": "soneinndelingTilHavs",
+              "visningsnavn": "Soneinndeling til havs",
+              "beskrivelse": "Fiskerisone, havrettssone og lignende.",
+              "tags": {}
+            },
+            {
+              "kode": "7206",
+              "navn": "friluftsområde",
+              "visningsnavn": "Friluftsområde",
+              "beskrivelse": "Et område som er avsatt for friluftsliv.",
+              "tags": {
+                "landuse": "recreation_ground"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kode": "8000",
+      "navn": "kultur",
+      "visningsnavn": "Kultur",
+      "beskrivelse": "Alle grupper som er relevante under hovedgruppe Kultur. Tilsvarer Inspire temaet 'protctedSite'.",
+      "navnetypeGrupper": [
+        {
+          "kode": "8100",
+          "navn": "kulturminner",
+          "visningsnavn": "Kulturminner",
+          "beskrivelse": "Samlegruppe for objekttyper som er vernet som kulturminner.",
+          "navnetyper": [
+            {
+              "kode": "8101",
+              "navn": "severdighet",
+              "visningsnavn": "Severdighet",
+              "beskrivelse": "Minnesmerke, arkeologiske funn o.l.",
+              "tags": {
+                "tourism": "attraction"
+              }
+            },
+            {
+              "kode": "8102",
+              "navn": "utsiktspunkt",
+              "visningsnavn": "Utsiktspunkt",
+              "beskrivelse": "Både fra tårn og på bakken.",
+              "tags": {
+                "tourism": "viewpoint"
+              }
+            },
+            {
+              "kode": "8103",
+              "navn": "offersted",
+              "visningsnavn": "Offersted",
+              "beskrivelse": "Alle typer offersted.",
+              "tags": {
+                "historic": "heritage",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "8104",
+              "navn": "annenKulturdetalj",
+              "visningsnavn": "Annen kulturdetalj",
+              "beskrivelse": "Alle andre typer kulturdetaljer, f.eks. lekeplass, utkikkstårn, fiskeplass, og lignende.",
+              "tags": {
+                "place": "locality"
+              }
+            }
+          ]
+        },
+        {
+          "kode": "8200",
+          "navn": "kulturinstitusjoner",
+          "visningsnavn": "Kulturinstitusjoner",
+          "beskrivelse": "Samlegruppe for objekttyper som beskriver institusjoner for kulturell aktivitet.",
+          "navnetyper": [
+            {
+              "kode": "8201",
+              "navn": "museumGalleriBibliotek",
+              "visningsnavn": "Museum/galleri/bibliotek",
+              "beskrivelse": "Alle typer museum, galleri og bibliotek.",
+              "tags": {
+                "tourism": "museum"
+              }
+            },
+            {
+              "kode": "8202",
+              "navn": "forsamlingshusKulturhus",
+              "visningsnavn": "Forsamlingshus/kulturhus",
+              "beskrivelse": "Teater, kino, samfunnshus, grendehus o.l.",
+              "tags": {
+                "amenity": "community_centre"
+              }
+            },
+            {
+              "kode": "8203",
+              "navn": "kirke",
+              "visningsnavn": "Kirke",
+              "beskrivelse": "Kirke, kapell, arbeidskirke o.l.",
+              "tags": {
+                "amenity": "place_of_worship",
+                "religion": "christian",
+                "denomination": "lutheran"
+              }
+            },
+            {
+              "kode": "8204",
+              "navn": "annenBygningForReligionsutøvelse",
+              "visningsnavn": "Annen bygning for religionsutøvelse",
+              "beskrivelse": "Synagoge, moské, frikirke, menighetshus, kloster, gravkapell, bårehus, krematorium.",
+              "tags": {
+                "amenity": "place_of_worship",
+                "fixme": "specify religion=*, denomination=*, building=* etc"
+              }
+            },
+            {
+              "kode": "8205",
+              "navn": "gravplass",
+              "visningsnavn": "Gravplass",
+              "beskrivelse": "Alle typer gravlunder, gravplasser.",
+              "tags": {
+                "cemetery": "grave",
+                "place": "locality"
+              }
+            },
+            {
+              "kode": "88206",
+              "navn": "kulturMessehall",
+              "visningsnavn": "Kultur-/messehall",
+              "beskrivelse": "Stort anlegg/hall til flerbruk - varemesse, konserter, idrettsarrangement.",
+              "tags": {
+                "amenity": "conference_centre"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

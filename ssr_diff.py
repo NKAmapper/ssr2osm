@@ -13,6 +13,8 @@ import urllib.request
 from xml.etree import ElementTree as ET
 
 
+version = "0.2.0"
+
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
 
@@ -94,24 +96,28 @@ if __name__ == '__main__':
 
 	print("\nDiff between SSR geosjon and Obtitus files\n")
 
+	# Get municipality
+
 	municipalities = {}
 	load_municipalities()
+
 	municipality_id = get_municipality(sys.argv[1])
 	if municipality_id is None or municipality_id not in municipalities:
 		sys.exit("Municipality '%s' not found\n" % sys.argv[1])
 	municipality_name = municipalities[ municipality_id ]
+	print ("Municipality: %s %s" % (municipality_id, municipality_name))
 
-	# Load geosjon file
+	# Load geosjon file (file 1)
 
 	filename = "stedsnavn_%s_%s.geojson" % (municipality_id, municipality_name)
 	file = open(filename)
 	places1 = json.load(file)
 	file.close()
-	print ("File 1: %s ... %i place names\n" % (filename, len(places1['features'])))
+	print ("File 1: %s ... %i place names" % (filename, len(places1['features'])))
 
 	places2 = {}
 
-	# Load Obtitus file
+	# Load Obtitus file (file 2)
 
 	url = "https://obtitus.github.io/ssr2_to_osm_data/data/%s/%s.osm" % (municipality_id, municipality_id)
 	request = urllib.request.Request(url, headers=header)
@@ -134,9 +140,13 @@ if __name__ == '__main__':
 
 	print ("File 2: %s ... %i place names" % (url, len(places2)))
 
-	# Compare files
+	# Compare files and output diff
 
-	for place1 in places1['features']:
+	print ("\n\nDiff between files 1 and 2:\n")
+
+	places1_not_found = []  # Will contain non-matched places from file 1
+
+	for place1 in places1['features'][:]:
 		place_id = place1['properties']['ssr:stedsnr']
 		found = False
 
@@ -144,23 +154,31 @@ if __name__ == '__main__':
 			names1 = set(get_names(place1['properties']).items())
 			names2 = set(get_names(places2[ place_id ]['tags']).items())
 			if names2 - names1:
-				print ("%s: Missing in file 1: %s" % (place_id, dict(sorted(names2 - names1))))
+				print ("%s: Missing tags in file 1: %s" % (place_id, dict(sorted(names2 - names1))))
 				found = True
 			if names1 - names2:
-				print ("%s: Missing in file 2: %s" % (place_id, dict(sorted(names1 - names2))))
+				print ("%s: Missing tags in file 2: %s" % (place_id, dict(sorted(names1 - names2))))
 				found = True
 
-			del places2[ place_id ]
+			del places2[ place_id ]  # Places2 will only contain non-matched places from file 2
 
 		else:
-			print ("%s: Place not found in file 2. %s" % (place_id, get_names(place1['properties'])))
-			found = True
+			places1_not_found.append(place1)
 
 		if found:
 			print ("")
 
-	for place2_id, place2 in iter(places2.items()):
-		print ("%s: Place not found in file 1. %s" % (place2_id, get_names(place2['tags'])))
+	# Output places not found
 
-	print ("")
+	if places2:
+		print ("\nPlaces from file 2 not found in file 1:\n")
+		for place2_id, place2 in iter(places2.items()):
+			print ("%s: Place not found in file 1. %s" % (place2_id, get_names(place2['tags'])))
 
+	if places1_not_found:
+		print ("\nPlaces from file 1 not found in file 2:\n")
+		for place1 in places1_not_found:
+			place_id = place1['properties']['ssr:stedsnr']
+			print ("%s: Place not found in file 2. %s" % (place_id, get_names(place1['properties'])))
+
+	print("")

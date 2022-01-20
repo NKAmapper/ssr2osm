@@ -23,7 +23,7 @@ from itertools import chain
 import utm
 
 
-version = "0.2.0"
+version = "0.3.0"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -317,7 +317,7 @@ def process_municipality(municipality_id):
 					spelling_name = (spelling[0].find("app:komplettskrivemåte", ns).text).replace("  ", " ")
 					spelling_status = spelling[0].find("app:skrivemåtestatus", ns).text
 
-					if spelling_status == "historisk":
+					if name_status == "historisk" or spelling_status == "historisk":
 						names[ language ]['old_name'].append(spelling_name)
 					elif spelling_status in ['foreslått', 'uvurdert']:
 						names[ language ]['loc_name'].append(spelling_name)
@@ -329,7 +329,6 @@ def process_municipality(municipality_id):
 			# Determine name tagging
 
 			main_name = []
-			alt_name = False
 			non_norwegian = False
 
 			for language in place_language_priority.split("-"):
@@ -343,16 +342,12 @@ def process_municipality(municipality_id):
 							tags[ name_tag ] = ";".join(names[ language ][ name_tag_type ])
 
 							non_norwegian = (non_norwegian or language != "norsk")
-							alt_name = (alt_name or name_tag_type == "alt_name")
 
 					if names[ language ]['name']:
 						main_name.append(";".join(names[ language ]['name']))
 
 			if main_name:
 				tags['name'] = " - ".join(main_name)
-
-			elif alt_name:
-				message ("\t\t*** Missing name=* for place %s\n" % place_id)
 
 			# Wrap up and store in places dict
 
@@ -462,7 +457,7 @@ if __name__ == '__main__':
 
 			elif len(municipality_id) == 4: # Process each municipality
 				process_municipality(municipality_id)
-#				output_geojson(municipality_id)
+				output_geojson(municipality_id)
 
 		if name_filter:
 			message ("Compiling Norway file for name type '%s'\n" % name_filter)
@@ -474,4 +469,5 @@ if __name__ == '__main__':
 
 	used_time = time.time() - start_time
 	message("Done in %s\n\n" % timeformat(used_time))
+
 

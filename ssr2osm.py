@@ -23,7 +23,7 @@ from itertools import chain
 import utm
 
 
-version = "0.3.0"
+version = "0.4.0"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -40,8 +40,8 @@ language_codes = {
 }
 
 # The following municipalities will always have language prefix in name:xx=* tagging
-multi_language_municipalities = []  # ["Kautokeino", "Karasjok", "Porsanger", "Tana", "Nesseby", "Kåfjord"] 
-	# Excluded due to < 15% sami names: ["Lavangen", "Tjeldsund", "Hamarøy", "Hattfjelldal", "Røyrvik", "Snåsa", "Røros"]
+sami_municipalities = []  # ["Kautokeino", "Karasjok", "Porsanger", "Tana", "Nesseby", "Kåfjord"] 
+	# ["Lavangen", "Tjeldsund", "Hamarøy", "Hattfjelldal", "Røyrvik", "Snåsa", "Røros"]  # Excluded due to < 15% sami names: 
 
 include_incomplete_names = False  # True will include unofficial names, i.e. without name=* present, plus names without object tagging
 
@@ -204,7 +204,7 @@ def process_municipality(municipality_id):
 	'''
 
 	municipality_name = municipalities[ municipality_id ]
-	multi_language = (municipality_name in multi_language_municipalities)
+	sami_municipality = (municipality_name in sami_municipalities)
 
 	if len(municipality_id) == 2:
 		message ("County: ")
@@ -251,24 +251,30 @@ def process_municipality(municipality_id):
 		if "featureMember" in feature.tag:
 
 			count += 1
-#			place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]		
-			place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
-			place_group = feature[0].find("app:navneobjektgruppe", ns).text
 			place_type = feature[0].find("app:navneobjekttype", ns).text
-#			place_importance = feature[0].find("app:sortering", ns).text
-			place_language_priority = feature[0].find("app:språkprioritering", ns).text
-			place_id = feature[0].find("app:stedsnummer", ns).text
 
 			if name_filter and place_type != name_filter:  # Skip if name filter is used and does not match
 				continue
+
+#			place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]		
+			place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
+			place_group = feature[0].find("app:navneobjektgruppe", ns).text
+#			place_importance = feature[0].find("app:sortering", ns).text
+			place_language_priority = feature[0].find("app:språkprioritering", ns).text
+			place_id = feature[0].find("app:stedsnummer", ns).text
+			place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
 
 			tags = {
 				'ssr:stedsnr': place_id,
 				'TYPE': place_type,
 				'GRUPPE': place_group,
 				'HOVEDGRUPPE': place_maingroup
+#				'DATO': place_date,
 #				'VIKTIGHET': place_importance[-1]
 			}
+
+			if len(municipality_id) == 2:
+				tags['KOMMUNE'] = place_municipality + " " + municipalities[ place_municipality ]
 
 			# Get coordinate
 
@@ -288,6 +294,7 @@ def process_municipality(municipality_id):
 				place_coordinate = (0,0, 0.0)
 
 			# Adjust coordinate slightly to avoid exact overlap (JOSM will merge overlapping nodes)
+
 			place_coordinate = ( round(place_coordinate[0], 7), round(place_coordinate[1], 7) )
 			while place_coordinate in points:
 				place_coordinate = ( place_coordinate[0], place_coordinate[1] + 0.0001)
@@ -316,12 +323,13 @@ def process_municipality(municipality_id):
 
 					spelling_name = (spelling[0].find("app:komplettskrivemåte", ns).text).replace("  ", " ")
 					spelling_status = spelling[0].find("app:skrivemåtestatus", ns).text
+					priority_spelling = ("skrivemåte" in spelling.tag)
 
 					if name_status == "historisk" or spelling_status == "historisk":
 						names[ language ]['old_name'].append(spelling_name)
 					elif spelling_status in ['foreslått', 'uvurdert']:
 						names[ language ]['loc_name'].append(spelling_name)
-					elif public_placename and name_status != "undernavn" and "skrivemåte" in spelling.tag:
+					elif public_placename and name_status != "undernavn" and priority_spelling:
 						names[ language ]['name'].append(spelling_name)
 					else:
 						names[ language ]['alt_name'].append(spelling_name)
@@ -329,7 +337,7 @@ def process_municipality(municipality_id):
 			# Determine name tagging
 
 			main_name = []
-			non_norwegian = False
+			non_norwegian = False  # Will become True if non-Norwegian spellings exist for this place
 
 			for language in place_language_priority.split("-"):
 				if language in names:
@@ -337,14 +345,14 @@ def process_municipality(municipality_id):
 						if names[ language ][ name_tag_type ]:
 
 							name_tag = name_tag_type
-							if multi_language or len(names) > 1 or language != "norsk":
+							if sami_municipality or len(names) > 1 or language != "norsk":  # Language suffix for non-Norwegian names
 								name_tag += ':' + language_codes[language]
 							tags[ name_tag ] = ";".join(names[ language ][ name_tag_type ])
 
 							non_norwegian = (non_norwegian or language != "norsk")
 
 					if names[ language ]['name']:
-						main_name.append(";".join(names[ language ]['name']))
+						main_name.append(";".join(names[ language ]['name']))  # Promote to main name=* tag
 
 			if main_name:
 				tags['name'] = " - ".join(main_name)
@@ -469,5 +477,3 @@ if __name__ == '__main__':
 
 	used_time = time.time() - start_time
 	message("Done in %s\n\n" % timeformat(used_time))
-
-

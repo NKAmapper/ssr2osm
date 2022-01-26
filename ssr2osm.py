@@ -4,18 +4,19 @@
 '''
 ssr2osm.py
 Extracts and converts place names from SSR to geojson file with OSM-tagging.
-Usage: python3 ssr2osm.py <municipality/county name> [name type] [-all]
+Usage: python3 ssr2osm.py <municipality/county name/Norge> [name type] [-all] [-wfs]
 Parameters:
-- Municipality/county name or 4/2 digit code, or "Norge" if [name type] parameter is provided
+- Municipality/county name or 4/2 digit code, or "Norge"
 - Optional: Name type - will generate file with all place names of given name type (use SSR name type code, e.g. "nesISjø"). Combine with "Norge".
-- Optional: "-all" will include place names without name=* tags (just loc_name/old_name) and without OSM feature tags (place=*, natural=* etc) 
+- Optional: "-all" will include place names without name=* tags (just loc_name/old_name) and without OSM feature tags (place=*, natural=* etc)
+- Optional: "-wfs" will query place names through Kartverket WFS service
 '''
 
 
 import json
 import sys
 import time
-import urllib.request
+import urllib.request, urllib.parse
 import zipfile
 from io import BytesIO, TextIOWrapper
 from xml.etree import ElementTree as ET
@@ -23,27 +24,49 @@ from itertools import chain
 import utm
 
 
-version = "0.4.0"
+version = "0.5.0"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
 language_codes = {
-	'norsk': 'no',
-	'nordsamisk': 'se',
-	'lulesamisk': 'smj',
-	'sørsamisk': 'sma',
+	# Used in files
+	'norsk':        'no',
+	'nordsamisk':   'se',
+	'lulesamisk':   'smj',
+	'sørsamisk':    'sma',
 	'skoltesamisk': 'sms',
-	'kvensk': 'fkv',
-	'engelsk': 'en',
-	'russisk': 'ru',
-	'svensk': 'sv'
+	'kvensk':       'fkv',
+	'engelsk':      'en',
+	'svensk':       'sv',
+	'russisk':      'ru',
+
+	# Used in WFS
+	'nor': 'no',   # Norsk
+	'sme': 'se',   # Nordsamisk
+	'smj': 'smj',  # Lulesamisk
+	'sma': 'sma',  # Sørsamisk
+	'sms': 'sms',  # Skoltesamisk
+	'fkv': 'fkv',  # Kvensk
+	'eng': 'en',   # Engelsk
+	'swe': 'sv',   # Svensk
+	'rus': 'ru',   # Russisk
+	'fin': 'fi',   # Finsk
+	'dan': 'da',   # Dansk
+	'kal': 'kl',   # Grønlandsk
+	'isl': 'is',   # Islandsk
+	'deu': 'de',   # Tysk
+	'gle': 'ga',   # Irsk
+	'fra': 'fr',   # Fransk
+	'nld': 'nl',   # Nederlandsk
 }
 
-# The following municipalities will always have language prefix in name:xx=* tagging
-sami_municipalities = []  # ["Kautokeino", "Karasjok", "Porsanger", "Tana", "Nesseby", "Kåfjord"] 
-	# ["Lavangen", "Tjeldsund", "Hamarøy", "Hattfjelldal", "Røyrvik", "Snåsa", "Røros"]  # Excluded due to < 15% sami names: 
+# Not used: The following municipalities will always have language prefix in name:xx=* tagging
+# sami_municipalities = ["Kautokeino", "Karasjok", "Porsanger", "Tana", "Nesseby", "Kåfjord",
+#						"Lavangen", "Tjeldsund", "Hamarøy", "Hattfjelldal", "Røyrvik", "Snåsa", "Røros"]
 
 include_incomplete_names = False  # True will include unofficial names, i.e. without name=* present, plus names without object tagging
+
+use_wfs = False  # True will load data from WFS rather than from files
 
 
 
@@ -160,8 +183,11 @@ def parse_coordinates(wkt):
 	for i in range(0, len(split_wkt) - 1, 2):
 		x = float(split_wkt[ i ])
 		y = float(split_wkt[ i + 1 ])
-		[lat, lon] = utm.UtmToLatLon (x, y, 33, "N")
-		node = (lon, lat)
+		if use_wfs:
+			node = (x, y)  # 4326
+		else:
+			lat, lon = utm.UtmToLatLon (x, y, 33, "N")
+			node = (lon, lat)
 		coordinates.append(node)
 
 	return coordinates
@@ -196,23 +222,75 @@ def average_point(coordinates):
 
 
 
-def process_municipality(municipality_id):
+def generate_tags(tags, names, language_priority):
+
+	'''
+	Generate name tags in correct order and format.
+	Result in modified tags dict parameter.
+	'''
+
+	main_name = []
+
+	if not language_priority:
+		language_priority = "-".join(names.keys())
+
+	# Convert spellings to name tags.
+	# Iterate once per language in language priority order.	
+
+	for language in language_priority.split("-"):
+		if language in names:
+			for name_tag_type in ['name', 'alt_name', 'loc_name', 'old_name']:
+				if names[ language ][ name_tag_type ]:
+
+					name_tag = name_tag_type
+					if len(names) > 1 or language not in ["norsk", "nor"]:  # Language suffix for non-Norwegian names
+						name_tag += ':' + language_codes[language]
+					tags[ name_tag ] = ";".join(names[ language ][ name_tag_type ])
+
+			if names[ language ]['name']:
+				main_name.append(";".join(names[ language ]['name']))  # Promote to main name=* tag
+
+	if main_name:
+		tags['name'] = " - ".join(main_name)
+
+	# Add OSM tagging
+
+	tags.update( tagging[ tags['TYPE'] ] )
+
+	if "name" in tags and ";" in tags['name']:
+		if "FIXME" in tags:
+			tags['FIXME'] += ";"
+		else:
+			tags['FIXME'] = ""
+		tags['FIXME'] += "Velg én skrivemåte i name=* og legg resten i alt_name=*"
+
+
+
+def process_ssr(municipality_id):
 	'''
 	Main function of ssr2osm.
 	Load municipality or county SSR file and convert to OSM tagging.
 	Converted place names are added to "places" list.
+	Switch to SSR wfs query function if selected.
 	'''
 
-	municipality_name = municipalities[ municipality_id ]
-	sami_municipality = (municipality_name in sami_municipalities)
+	if use_wfs:
+		process_ssr_wfs(municipality_id)
+		return
 
-	if len(municipality_id) == 2:
-		message ("County: ")
-	else:
-		message ("Municipality: ")
+	municipality_name = municipalities[ municipality_id ]
+
 	message ("%s %s\n" % (municipality_id, municipality_name))
 
 	# Load latest SSR file for municipality from Kartverket
+
+	ns_gml = 'http://www.opengis.net/gml/3.2'
+	ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/StedsnavnForVanligBruk/20181115'
+
+	ns = {
+		'gml': ns_gml,
+		'app': ns_app
+	}
 
 	filename = clean_filename("Basisdata_%s_%s_25833_Stedsnavn_GML" % (municipality_id, municipality_name))
 	message ("\tLoading file '%s' ... " % filename)
@@ -227,14 +305,6 @@ def process_municipality(municipality_id):
 	file_in.close()
 	root = tree.getroot()
 
-	ns_gml = 'http://www.opengis.net/gml/3.2'
-	ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/StedsnavnForVanligBruk/20181115'
-
-	ns = {
-		'gml': ns_gml,
-		'app': ns_app
-	}
-
 	# Loop features, parse, load into data structure and tag
 
 	message ("\n")
@@ -244,146 +314,308 @@ def process_municipality(municipality_id):
 	count_language_hits = 0
 	points = set()  # Used to discover overlapping points
 
-	if not name_filter:  # Accumulate place names across municipalities/counties if name type filter is used
+	if not type_filter:  # Accumulate place names across municipalities/counties if name type filter is used
 		places.clear()
 
 	for feature in root:
-		if "featureMember" in feature.tag:
+		
+		if "featureMember" not in feature.tag:
+			continue
 
-			count += 1
-			place_type = feature[0].find("app:navneobjekttype", ns).text
+		count += 1
+		place_type = feature[0].find("app:navneobjekttype", ns).text
 
-			if name_filter and place_type != name_filter:  # Skip if name filter is used and does not match
-				continue
+		if type_filter and place_type != type_filter:  # Skip if name filter is used and does not match
+			continue
 
-#			place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]		
-			place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
-			place_group = feature[0].find("app:navneobjektgruppe", ns).text
-#			place_importance = feature[0].find("app:sortering", ns).text
-			place_language_priority = feature[0].find("app:språkprioritering", ns).text
-			place_id = feature[0].find("app:stedsnummer", ns).text
-			place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
+#		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
+		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
+		place_group = feature[0].find("app:navneobjektgruppe", ns).text
+#		place_importance = feature[0].find("app:sortering", ns)[0][0].text  # Not used
+		place_language_priority = feature[0].find("app:språkprioritering", ns).text
+		place_id = feature[0].find("app:stedsnummer", ns).text
+		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
 
-			tags = {
-				'ssr:stedsnr': place_id,
-				'TYPE': place_type,
-				'GRUPPE': place_group,
-				'HOVEDGRUPPE': place_maingroup
-#				'DATO': place_date,
-#				'VIKTIGHET': place_importance[-1]
+		tags = {
+			'ssr:stedsnr': place_id,
+			'TYPE': place_type,
+			'GRUPPE': place_group,
+			'HOVEDGRUPPE': place_maingroup
+#			'DATO': place_date,
+#			'VIKTIGHET': place_importance[-1]
+		}
+
+		if len(municipality_id) == 2:
+			tags['KOMMUNE'] = "#" + place_municipality + " " + municipalities[ place_municipality ]
+
+		# Get coordinate
+
+		if feature[0].find("app:multipunkt", ns):
+			place_coordinate = parse_coordinates(feature[0].find("app:multipunkt", ns)[0][0][0][0].text)[0]  # Use 1st point
+
+		elif feature[0].find("app:posisjon", ns):
+			place_coordinate = parse_coordinates(feature[0].find("app:posisjon", ns)[0][0].text)[0]
+
+		elif feature[0].find("app:senterlinje", ns):
+			place_coordinate = average_point(parse_coordinates(feature[0].find("app:senterlinje", ns)[0][0].text))
+
+		elif feature[0].find("app:område", ns):
+			place_coordinate = average_point(parse_coordinates(feature[0].find("app:område", ns)[0][0][0][0][0][0].text))
+
+		else:
+			place_coordinate = (0,0, 0.0)
+
+		# Adjust coordinate slightly to avoid exact overlap (JOSM will merge overlapping nodes)
+
+		place_coordinate = ( round(place_coordinate[0], 7), round(place_coordinate[1], 7) )
+		while place_coordinate in points:
+			place_coordinate = ( place_coordinate[0], place_coordinate[1] + 0.0001)
+		points.add(place_coordinate)
+
+		# Get all spellings/languages for the place
+
+		names = {}
+
+		for placename in feature[0].findall("app:stedsnavn", ns):
+
+			public_placename =  (placename[0].find("app:offentligBruk", ns).text == "true")
+#			case_status = placename[0].find("app:navnesakstatus", ns).text  # Not used
+			name_status = placename[0].find("app:navnestatus", ns).text
+			language = placename[0].find("app:språk", ns).text
+
+			if language not in names:
+				names[ language ] = {
+					'name': [],
+					'alt_name': [],
+					'loc_name': [],
+					'old_name': []
+				}
+
+			for spelling in chain( placename[0].findall("app:skrivemåte", ns), placename[0].findall("app:annenSkrivemåte", ns) ):
+
+				spelling_name = " ".join((spelling[0].find("app:komplettskrivemåte", ns).text).split())  # Fix spaces
+				spelling_status = spelling[0].find("app:skrivemåtestatus", ns).text
+				priority_spelling = ("skrivemåte" in spelling.tag)
+
+				if name_status == "historisk" or spelling_status == "historisk":
+					names[ language ]['old_name'].append(spelling_name)
+				elif spelling_status in ['foreslått', 'uvurdert']:
+					names[ language ]['loc_name'].append(spelling_name)
+				elif public_placename and name_status != "undernavn" and priority_spelling:
+					names[ language ]['name'].append(spelling_name)
+				else:
+					names[ language ]['alt_name'].append(spelling_name)
+
+		# Get name tags and OSM feature tags
+
+		generate_tags(tags, names, place_language_priority)
+
+		# Wrap up and store in places dict
+
+		if "name" in tags and tagging[ place_type ] or include_incomplete_names:
+
+			new_feature = {
+				'type': 'Feature',
+				'geometry': {
+					'type': 'Point',
+					'coordinates': place_coordinate
+				},
+				'properties': tags			
 			}
 
-			if len(municipality_id) == 2:
-				tags['KOMMUNE'] = place_municipality + " " + municipalities[ place_municipality ]
+			places.append(new_feature)
 
-			# Get coordinate
+			count_hits += 1
+			if len(names) > 1 or "norsk" not in names:
+				count_language_hits += 1
+	
+	message ("\tConverted %i of %i place names" % (count_hits, count))
+	if count_language_hits > 0:
+		message (", including %i non-Norwegian names" % count_language_hits)
+	message("\n")
 
-			if feature[0].find("app:multipunkt", ns):
-				place_coordinate = parse_coordinates(feature[0].find("app:multipunkt", ns)[0][0][0][0].text)[0]  # Use 1st point
 
-			elif feature[0].find("app:posisjon", ns):
-				place_coordinate = parse_coordinates(feature[0].find("app:posisjon", ns)[0][0].text)[0]
 
-			elif feature[0].find("app:senterlinje", ns):
-				place_coordinate = average_point(parse_coordinates(feature[0].find("app:senterlinje", ns)[0][0].text))
+def process_ssr_wfs(municipality_id):
+	'''
+	Main function of ssr2osm.
+	Query SSR by municipality, county or name type, and convert to OSM tagging.
+	Converted place names are added to "places" list.
+	'''
 
-			elif feature[0].find("app:område", ns):
-				place_coordinate = average_point(parse_coordinates(feature[0].find("app:område", ns)[0][0][0][0][0][0].text))
+	municipality_name = municipalities[ municipality_id ]
 
-			else:
-				place_coordinate = (0,0, 0.0)
+	message ("%s %s\n" % (municipality_id, municipality_name))
 
-			# Adjust coordinate slightly to avoid exact overlap (JOSM will merge overlapping nodes)
+	# Query SSR wfs from Kartverket
 
-			place_coordinate = ( round(place_coordinate[0], 7), round(place_coordinate[1], 7) )
-			while place_coordinate in points:
-				place_coordinate = ( place_coordinate[0], place_coordinate[1] + 0.0001)
-			points.add(place_coordinate)
+	ns_wfs = "http://www.opengis.net/wfs/2.0" 
+	ns_gml = 'http://www.opengis.net/gml/3.2'
+	ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/Stedsnavn/5.0'
 
-			# Get all spellings/languages for the place
+	ns = {
+		'wfs': ns_wfs,
+		'gml': ns_gml,
+		'app': ns_app
+	}
 
-			names = {}
+	if type_filter:
+		filter_parameter = ("app:navneobjekttype", type_filter)
+	elif len(municipality_id) == 4: 
+		filter_parameter = ("app:kommune/app:Kommune/app:kommunenummer", municipality_id)
+	else:
+		filter_parameter = ("app:kommune/app:Kommune/app:fylkesnummer", municipality_id)
 
-			for placename in feature[0].findall("app:stedsnavn", ns):
+	wfs_filter = '<Filter><PropertyIsEqualTo><ValueReference xmlns:app="%s">%s</ValueReference>' % (ns_app, filter_parameter[0]) + \
+					'<Literal>%s</Literal></PropertyIsEqualTo></Filter>' % filter_parameter[1]
 
-				public_placename =  (placename[0].find("app:offentligBruk", ns).text == "true")
-#				case_status = placename[0].find("app:navnesakstatus", ns).text
-				name_status = placename[0].find("app:navnestatus", ns).text
-				language = placename[0].find("app:språk", ns).text
+	url = "http://wfs.geonorge.no/skwms1/wfs.stedsnavn50?" + \
+			"VERSION=2.0.0&SERVICE=WFS&srsName=EPSG:4326&REQUEST=GetFeature&TYPENAME=Sted&resultType=results&Filter="
 
-				if language not in names:
-					names[ language ] = {
-						'name': [],
-						'alt_name': [],
-						'loc_name': [],
-						'old_name': []
-					}
+	header["Content-Type"] = "text/xml"
 
-				for spelling in chain( placename[0].findall("app:skrivemåte", ns), placename[0].findall("app:annenSkrivemåte", ns) ):
+	message ("\tLoading wfs for '%s' ... " % filter_parameter[1]) # % (url + wfs_filter))
 
-					spelling_name = (spelling[0].find("app:komplettskrivemåte", ns).text).replace("  ", " ")
-					spelling_status = spelling[0].find("app:skrivemåtestatus", ns).text
-					priority_spelling = ("skrivemåte" in spelling.tag)
+	request = urllib.request.Request(url + urllib.parse.quote(wfs_filter), headers=header)
+	file = urllib.request.urlopen(request)
+
+	tree = ET.parse(file)
+	file.close()
+	root = tree.getroot()
+
+	# Loop features, parse, load into data structure and tag
+
+	message ("\n")
+
+	count = 0
+	count_hits = 0
+	count_language_hits = 0
+	points = set()  # Used to discover overlapping points
+	places.clear()
+
+	for feature in root:
+
+		count += 1
+		place_status = feature[0].find("app:stedstatus", ns).text
+		place_type = feature[0].find("app:navneobjekttype", ns).text
+		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text
+
+		# Skip place under certain condidations
+		if place_status not in ["aktiv", "relikt"] or \
+				place_municipality[:len(municipality_id)] != municipality_id and municipality_id != "00" or \
+				type_filter and place_type != type_filter:
+			continue
+
+#		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
+		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
+		place_group = feature[0].find("app:navneobjektgruppe", ns).text
+#		place_importance = feature[0].find("app:sortering", ns)[0][0].text  # Not used
+		place_id = feature[0].find("app:stedsnummer", ns).text
+
+		place_language_priority = feature[0].find("app:språkprioritering", ns)  # Not used at Svalbard
+		if place_language_priority:
+			place_language_priority = place_language_priority.text
+
+		tags = {
+			'ssr:stedsnr': place_id,
+			'TYPE': place_type,
+			'GRUPPE': place_group,
+			'HOVEDGRUPPE': place_maingroup
+#			'DATO': place_date,
+#			'VIKTIGHET': place_importance[-1]
+		}
+
+		if len(municipality_id) == 2:
+			tags['KOMMUNE'] = "#" + place_municipality + " " + municipalities[ place_municipality ]
+
+		# Get coordinate
+
+		geometry = feature[0].find("app:posisjon", ns)
+		if geometry.find("gml:MultiPoint", ns):
+			place_coordinate = parse_coordinates(geometry[0][0][0][0].text)[0]  # Use 1st point
+
+		elif geometry.find("gml:Point", ns):
+			place_coordinate = parse_coordinates(geometry[0][0].text)[0]
+
+		elif geometry.find("gml:LineString", ns):
+			place_coordinate = average_point(parse_coordinates(geometry[0][0].text))
+
+		elif geometry.find("gml:MultiCurve", ns):
+			place_coordinate = average_point(parse_coordinates(geometry[0][0][0][0].text))
+
+		elif geometry.find("gml:Polygon", ns):
+			place_coordinate = average_point(parse_coordinates(geometry[0][0][0][0].text))  # Exterior area only
+
+		else:
+			place_coordinate = (0,0, 0.0)
+
+		# Adjust coordinate slightly to avoid exact overlap (JOSM will merge overlapping nodes)
+
+		place_coordinate = ( round(place_coordinate[0], 7), round(place_coordinate[1], 7) )
+		while place_coordinate in points:
+			place_coordinate = ( place_coordinate[0], place_coordinate[1] + 0.0001)
+		points.add(place_coordinate)
+
+		# Get all spellings/languages for the place
+
+		names = {}
+
+		for placename in feature[0].findall("app:stedsnavn", ns):
+
+#			case_status = placename[0].find("app:navnesakstatus", ns).text  # Not used
+			name_status = placename[0].find("app:navnestatus", ns).text
+			language = placename[0].find("app:språk", ns).text
+
+			if name_status in ["feilført", "avslåttNavnevalg"]:
+				continue
+
+			if language not in names:
+				names[ language ] = {
+					'name': [],
+					'alt_name': [],
+					'loc_name': [],
+					'old_name': []
+				}
+
+			for spelling in placename[0].findall("app:skrivemåte", ns):
+
+				spelling_name = " ".join((spelling[0].find("app:langnavn", ns).text).split())  # Fix spaces
+				spelling_status = spelling[0].find("app:skrivemåtestatus", ns).text
+				priority_spelling = (spelling[0].find("app:prioritertSkrivemåte", ns).text == "true")
+
+				if spelling_status not in ["avslått", "avslåttNavneledd", "feilført"]:
 
 					if name_status == "historisk" or spelling_status == "historisk":
 						names[ language ]['old_name'].append(spelling_name)
 					elif spelling_status in ['foreslått', 'uvurdert']:
 						names[ language ]['loc_name'].append(spelling_name)
-					elif public_placename and name_status != "undernavn" and priority_spelling:
+					elif name_status != "undernavn" and (priority_spelling or spelling_status == "vedtatt"):
 						names[ language ]['name'].append(spelling_name)
 					else:
 						names[ language ]['alt_name'].append(spelling_name)
 
-			# Determine name tagging
+		# Get name tags and OSM feature tags
 
-			main_name = []
-			non_norwegian = False  # Will become True if non-Norwegian spellings exist for this place
+		generate_tags(tags, names, place_language_priority)
 
-			for language in place_language_priority.split("-"):
-				if language in names:
-					for name_tag_type in ['name', 'alt_name', 'loc_name', 'old_name']:
-						if names[ language ][ name_tag_type ]:
+		# Wrap up and store in places dict
 
-							name_tag = name_tag_type
-							if sami_municipality or len(names) > 1 or language != "norsk":  # Language suffix for non-Norwegian names
-								name_tag += ':' + language_codes[language]
-							tags[ name_tag ] = ";".join(names[ language ][ name_tag_type ])
+		if "name" in tags and tagging[ place_type ] or include_incomplete_names:
 
-							non_norwegian = (non_norwegian or language != "norsk")
+			new_feature = {
+				'type': 'Feature',
+				'geometry': {
+					'type': 'Point',
+					'coordinates': place_coordinate
+				},
+				'properties': tags			
+			}
 
-					if names[ language ]['name']:
-						main_name.append(";".join(names[ language ]['name']))  # Promote to main name=* tag
+			places.append(new_feature)
 
-			if main_name:
-				tags['name'] = " - ".join(main_name)
-
-			# Wrap up and store in places dict
-
-			if "name" in tags and tagging[ place_type ] or include_incomplete_names:
-
-				tags.update( tagging[ place_type ] )
-
-				if "name" in tags and ";" in tags['name']:
-					if "FIXME" in tags:
-						tags['FIXME'] += ";"
-					else:
-						tags['FIXME'] = ""
-					tags['FIXME'] += "Velg én skrivemåte i name=* og legg resten i alt_name=*"
-
-				new_feature = {
-					'type': 'Feature',
-					'geometry': {
-						'type': 'Point',
-						'coordinates': place_coordinate
-					},
-					'properties': tags			
-				}
-
-				places.append(new_feature)
-
-				count_hits += 1
-				if non_norwegian:
-					count_language_hits += 1
+			count_hits += 1
+			if len(names) > 1 or "nor" not in names:
+				count_language_hits += 1
 	
 	message ("\tConverted %i of %i place names" % (count_hits, count))
 	if count_language_hits > 0:
@@ -397,25 +629,31 @@ def output_geojson(municipality_id):
 	Save places dict to geosjon file.
 	'''
 
-	filename = "stedsnavn_%s_%s" % (municipality_id, municipalities[municipality_id].replace(" ", "_"))
-	if name_filter:
-		filename += "_" + name_filter
-	if include_incomplete_names:
-		filename += "_all"
-	filename += ".geojson"
+	if len(places) > 0:
+		filename = "stedsnavn_%s_%s" % (municipality_id, municipalities[municipality_id].replace(" ", "_"))
+		if type_filter:
+			filename += "_" + type_filter
+		if use_wfs:
+			filename += "_wfs"
+		if include_incomplete_names:
+			filename += "_all"
+		filename += ".geojson"
 
-	message ("\tSave to '%s' file ... " % filename)
+		message ("\tSave to '%s' file ... " % filename)
 
-	geojson_features = { 
-		'type': 'FeatureCollection',
-		'features': places
-	}
+		geojson_features = { 
+			'type': 'FeatureCollection',
+			'features': places
+		}
 
-	file = open(filename, "w")
-	json.dump(geojson_features, file, indent=2, ensure_ascii=False)
-	file.close()
+		file = open(filename, "w")
+		json.dump(geojson_features, file, indent=2, ensure_ascii=False)
+		file.close()
 
-	message ("%i place names saved\n\n" % len(places))
+		message ("%i place names saved\n\n" % len(places))
+
+	else:
+		message ("No place names found, no file saved\n\n")
 
 
 
@@ -426,11 +664,15 @@ if __name__ == '__main__':
 	start_time = time.time()
 	message ("\n*** ssr2osm %s ***\n\n" % version)
 
-	places = []          # Will contain coverted place names
+	places = []          # Will contain converted place names
 	tagging = {}         # OSM tagging for each name type
 	municipalities = {}  # Codes/names of all counties and municipalities
 
 	# Get parameters
+
+	if "-wfs" in sys.argv:
+		use_wfs = True
+		municipalities['2100'] = "Svalbard"
 
 	if len(sys.argv) < 2:
 		message ("Please provide municipality number or name\n\n")
@@ -439,40 +681,55 @@ if __name__ == '__main__':
 	load_municipalities()
 	municipality_id = get_municipality(sys.argv[1])
 	if municipality_id is None or municipality_id not in municipalities:
-		sys.exit("Municipality '%s' not found\n" % sys.argv[1])
+		sys.exit("Municipality or county '%s' not found\n" % sys.argv[1])
 	municipality_name = municipalities[ municipality_id ]
 
 	load_tagging()
 
-	name_filter = None
+	type_filter = None
 	if len(sys.argv) > 2 and "-" not in sys.argv[2]:
-		name_filter = sys.argv[2]
-		if name_filter in tagging:
-			message("Extracting name type '%s' for %s\n\n" % (name_filter, municipality_name))
+		type_filter = sys.argv[2]
+		if type_filter in tagging:
+			message("Extracting name type '%s' for %s\n\n" % (type_filter, municipality_name))
 		else:
-			sys.exit("Name type '%s' not found\n" % name_filter)
+			sys.exit("Name type '%s' not found\n" % type_filter)
 
-	if "-all" in sys.argv:
+	if "-all" in sys.argv or "-alt" in sys.argv:
 		include_incomplete_names = True  # Also include place names without main name=* or without OSM feature tagging
 
 	# Execute conversion
 
 	if municipality_name == "Norge":
-		for municipality_id in sorted(list(municipalities.keys())):
-			if name_filter:
-				if len(municipality_id) == 2 and municipality_id != "00":  # Process all counties before output
-					process_municipality(municipality_id)
 
-			elif len(municipality_id) == 4: # Process each municipality
-				process_municipality(municipality_id)
-				output_geojson(municipality_id)
+		if type_filter:
+			if use_wfs:
+				# Query specifically for name type
+				process_ssr("00")
+				output_geojson("00")  # Norge				
 
-		if name_filter:
-			message ("Compiling Norway file for name type '%s'\n" % name_filter)
-			output_geojson("00")  # Norge
+			else:
+				# Process all counties before output
+				for municipality_id in sorted(list(municipalities.keys())):
+					if len(municipality_id) == 2 and municipality_id != "00":
+						process_ssr(municipality_id)
+
+				message ("Compiling Norway file for name type '%s'\n" % type_filter)
+				output_geojson("00")  # Norge
+
+		else:
+			# Output all municipalities separately
+			for municipality_id in sorted(list(municipalities.keys())):
+				if len(municipality_id) == 4:
+					lap_time = time.time()
+					process_ssr(municipality_id)
+					output_geojson(municipality_id)
+					if use_wfs:
+						used_time = time.time() - lap_time
+						message("\tDone in %s\n" % timeformat(used_time))
 
 	else:
-		process_municipality(municipality_id)
+		# Output one municipality or county
+		process_ssr(municipality_id)
 		output_geojson(municipality_id)
 
 	used_time = time.time() - start_time

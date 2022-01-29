@@ -24,7 +24,7 @@ from itertools import chain
 import utm
 
 
-version = "0.5.0"
+version = "0.5.1"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -231,7 +231,7 @@ def generate_tags(tags, names, language_priority):
 
 	main_name = []
 
-	if not language_priority:
+	if language_priority is None:
 		language_priority = "-".join(names.keys())
 
 	# Convert spellings to name tags.
@@ -513,7 +513,7 @@ def process_ssr_wfs(municipality_id):
 		place_id = feature[0].find("app:stedsnummer", ns).text
 
 		place_language_priority = feature[0].find("app:språkprioritering", ns)  # Not used at Svalbard
-		if place_language_priority:
+		if place_language_priority is not None:
 			place_language_priority = place_language_priority.text
 
 		tags = {

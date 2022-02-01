@@ -24,7 +24,7 @@ from itertools import chain
 import utm
 
 
-version = "0.5.1"
+version = "0.5.2"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -316,6 +316,7 @@ def process_ssr(municipality_id):
 
 	if not type_filter:  # Accumulate place names across municipalities/counties if name type filter is used
 		places.clear()
+		placeids.clear()
 
 	for feature in root:
 		
@@ -324,16 +325,22 @@ def process_ssr(municipality_id):
 
 		count += 1
 		place_type = feature[0].find("app:navneobjekttype", ns).text
+		place_id = feature[0].find("app:stedsnummer", ns).text
 
 		if type_filter and place_type != type_filter:  # Skip if name filter is used and does not match
 			continue
+
+		if int(place_id) in placeids:  # Skip if duplicate place
+#			message ("\t*** Duplicate place: %s\n" % place_id)
+			continue
+
+		placeids.add( int(place_id) )
 
 #		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
 		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
 #		place_importance = feature[0].find("app:sortering", ns)[0][0].text  # Not used
 		place_language_priority = feature[0].find("app:språkprioritering", ns).text
-		place_id = feature[0].find("app:stedsnummer", ns).text
 		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
 
 		tags = {
@@ -498,12 +505,10 @@ def process_ssr_wfs(municipality_id):
 		count += 1
 		place_status = feature[0].find("app:stedstatus", ns).text
 		place_type = feature[0].find("app:navneobjekttype", ns).text
-		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text
 
 		# Skip place under certain condidations
-		if place_status not in ["aktiv", "relikt"] or \
-				place_municipality[:len(municipality_id)] != municipality_id and municipality_id != "00" or \
-				type_filter and place_type != type_filter:
+		if place_status not in ["aktiv", "relikt"] or type_filter and place_type != type_filter:
+#				or place_municipality[:len(municipality_id)] != municipality_id and municipality_id != "00":
 			continue
 
 #		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
@@ -511,6 +516,7 @@ def process_ssr_wfs(municipality_id):
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
 #		place_importance = feature[0].find("app:sortering", ns)[0][0].text  # Not used
 		place_id = feature[0].find("app:stedsnummer", ns).text
+		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text
 
 		place_language_priority = feature[0].find("app:språkprioritering", ns)  # Not used at Svalbard
 		if place_language_priority is not None:
@@ -667,6 +673,7 @@ if __name__ == '__main__':
 	places = []          # Will contain converted place names
 	tagging = {}         # OSM tagging for each name type
 	municipalities = {}  # Codes/names of all counties and municipalities
+	placeids = set()     # Will contain all place id's (stedsnr)
 
 	# Get parameters
 
@@ -734,3 +741,4 @@ if __name__ == '__main__':
 
 	used_time = time.time() - start_time
 	message("Done in %s\n\n" % timeformat(used_time))
+

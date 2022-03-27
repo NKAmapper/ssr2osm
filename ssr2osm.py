@@ -16,6 +16,7 @@ Parameters:
 import json
 import sys
 import time
+import math
 import urllib.request, urllib.parse
 import zipfile
 from io import BytesIO, TextIOWrapper
@@ -24,7 +25,7 @@ from itertools import chain
 import utm
 
 
-version = "0.5.2"
+version = "0.6.0"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -67,6 +68,8 @@ language_codes = {
 include_incomplete_names = False  # True will include unofficial names, i.e. without name=* present, plus names without object tagging
 
 use_wfs = False  # True will load data from WFS rather than from files
+
+duplicate_tolerance = 1000  # Max. meter distance for flagging duplicate name
 
 
 
@@ -222,6 +225,32 @@ def average_point(coordinates):
 
 
 
+def compute_distance (point1, point2):
+	'''
+	Compute approximation of distance between two coordinates, (lon,lat), in kilometers.
+	Works for short distances.
+	'''
+
+	lon1, lat1, lon2, lat2 = map(math.radians, [point1[0], point1[1], point2[0], point2[1]])
+	x = (lon2 - lon1) * math.cos( 0.5*(lat2+lat1) )
+	y = lat2 - lat1
+	return 6371000.0 * math.sqrt( x*x + y*y )  # Metres
+
+
+
+def add_fixme(tags, comment):
+	'''
+	Add fixme comment to tags. Create fixme tag if not present.
+	'''
+
+	if "FIXME" in tags:
+		if comment not in tags['FIXME']:
+			tags['FIXME'] = comment + ";" + tags['FIXME']
+	else:
+		tags['FIXME'] = comment
+
+
+
 def generate_tags(tags, names, language_priority):
 
 	'''
@@ -258,11 +287,7 @@ def generate_tags(tags, names, language_priority):
 	tags.update( tagging[ tags['TYPE'] ] )
 
 	if "name" in tags and ";" in tags['name']:
-		if "FIXME" in tags:
-			tags['FIXME'] += ";"
-		else:
-			tags['FIXME'] = ""
-		tags['FIXME'] += "Velg én skrivemåte i name=* og legg resten i alt_name=*"
+		add_fixme(tags, "Velg én skrivemåte i name=* og legg resten i alt_name=*")
 
 
 
@@ -339,7 +364,7 @@ def process_ssr(municipality_id):
 #		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
 		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
-#		place_importance = feature[0].find("app:sortering", ns)[0][0].text  # Not used
+#		place_importance = feature[0].find("app:sortering", ns).text  # Not used
 		place_language_priority = feature[0].find("app:språkprioritering", ns).text
 		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
 
@@ -436,6 +461,8 @@ def process_ssr(municipality_id):
 			if len(names) > 1 or "norsk" not in names:
 				count_language_hits += 1
 	
+	check_duplicates()
+
 	message ("\tConverted %i of %i place names" % (count_hits, count))
 	if count_language_hits > 0:
 		message (", including %i non-Norwegian names" % count_language_hits)
@@ -623,10 +650,65 @@ def process_ssr_wfs(municipality_id):
 			if len(names) > 1 or "nor" not in names:
 				count_language_hits += 1
 	
+	check_duplicates()
+
 	message ("\tConverted %i of %i place names" % (count_hits, count))
 	if count_language_hits > 0:
 		message (", including %i non-Norwegian names" % count_language_hits)
 	message("\n")
+
+
+
+def sort_place(place):
+	'''
+	Define sort key as place type.
+	'''
+	if place['properties']['place'] in place_order:
+		return place_order.index(place['properties']['place'])
+	else:
+		message ("\tUnknown place: %s\n" % place['properties']['place'])
+		return 0
+
+
+
+def check_duplicates():
+	'''
+	Discover close duplicate names among "bebyggelse" places and tag in fixme.
+	'''
+
+	global place_order
+	place_order  = ['locality', 'square', 'isolated_dwelling', 'farm', 'neighbourhood', 'hamlet', 'quarter', 'suburb', 'village', 'town', 'city']
+
+	count = 0
+	place_names = {}
+
+	# Building dict with duplicate place names
+
+	for place in places:
+		name = place['properties']['name']
+		if place['properties']['HOVEDGRUPPE'] == "bebyggelse" and "place" in place['properties']:
+			if name not in place_names:
+				place_names[ name ] = [ place ]
+			else:
+				place_names[ name ].append(place)
+
+	# Tag least significant duplicates with fixme if close enough.
+
+	for name, duplicates in iter(place_names.items()):
+		if len(duplicates) > 1:
+			duplicates.sort(key = sort_place, reverse = True)
+
+			while len(duplicates) > 1:
+				ref_point = duplicates.pop(0)['geometry']['coordinates']
+				for place in duplicates:
+					distance = compute_distance(ref_point, place['geometry']['coordinates'])
+					if distance < duplicate_tolerance:
+						add_fixme(place['properties'], "Sjekk duplikat")
+#						place['properties']['DISTANCE'] = int(dist)
+						count += 1
+
+	if count > 1:
+		message ("\t%i close place name duplicates\n" % count)
 
 
 
@@ -741,4 +823,3 @@ if __name__ == '__main__':
 
 	used_time = time.time() - start_time
 	message("Done in %s\n\n" % timeformat(used_time))
-

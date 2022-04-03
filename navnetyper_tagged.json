@@ -1523,8 +1523,7 @@
               "visningsnavn": "Tettbebyggelse",
               "beskrivelse": "Bebygd område uten sentrumskarakter.",
               "tags": {
-                "place": "quarter",
-                "fixme": "consider place=suburb, village or hamlet"
+                "place": "quarter"
               }
             },
             {
@@ -1534,8 +1533,7 @@
               "visningsnavn": "Bygdelag (bygd)",
               "beskrivelse": "Stort, uregulert gards- og boligområde.",
               "tags": {
-                "place": "village",
-                "fixme": "consider place=hamlet"
+                "place": "quarter"
               }
             },
             {
@@ -1553,7 +1551,7 @@
               "visningsnavn": "Boligfelt",
               "beskrivelse": "Regulert boligområde.",
               "tags": {
-                "place": "quarter"
+                "place": "neighbourhood"
               }
             },
             {
@@ -1615,7 +1613,7 @@
               "visningsnavn": "Navnegard",
               "beskrivelse": "Opprinnelig navn fra før garden ble oppdelt i gards- og bruksenheter. Navnegardens utbredelse kan omfatte flere enn ett gardsnummer.",
               "tags": {
-                "place": "hamlet"
+                "place": "farm"
               }
             },
             {
@@ -1624,8 +1622,7 @@
               "visningsnavn": "Gard",
               "beskrivelse": "Felles navn for et helt gardsnummer (jf. § 8 i lov om stadnamn).",
               "tags": {
-                "place": "farm",
-                "fixme": "consider place=hamlet"
+                "place": "farm"
               }
             },
             {

@@ -4,12 +4,14 @@
 '''
 ssr2osm.py
 Extracts and converts place names from SSR to geojson file with OSM-tagging.
-Usage: python3 ssr2osm.py <municipality/county name/Norge> [name type] [-all] [-wfs]
+Usage: python3 ssr2osm.py <municipality/county name/Norge> [name type] [-all] [-wfs] [-nobuilding] [-clean]
 Parameters:
 - Municipality/county name or 4/2 digit code, or "Norge"
 - Optional: Name type - will generate file with all place names of given name type (use SSR name type code, e.g. "nesISjø"). Combine with "Norge".
 - Optional: "-all" will include place names without name=* tags (just loc_name/old_name) and without OSM feature tags (place=*, natural=* etc)
 - Optional: "-wfs" will query place names through Kartverket WFS service
+- Optional: "-nobuilding" will skip test for overlap with buildings
+- Optional: "-clean" will save less information tags
 '''
 
 
@@ -17,6 +19,8 @@ import json
 import sys
 import time
 import math
+import random
+import os.path
 import urllib.request, urllib.parse
 import zipfile
 from io import BytesIO, TextIOWrapper
@@ -25,7 +29,7 @@ from itertools import chain
 import utm
 
 
-version = "0.6.0"
+version = "1.0.0"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -61,15 +65,19 @@ language_codes = {
 	'nld': 'nl',   # Nederlandsk
 }
 
-# Not used: The following municipalities will always have language prefix in name:xx=* tagging
-# sami_municipalities = ["Kautokeino", "Karasjok", "Porsanger", "Tana", "Nesseby", "Kåfjord",
-#						"Lavangen", "Tjeldsund", "Hamarøy", "Hattfjelldal", "Røyrvik", "Snåsa", "Røros"]
+building_folder = "~/Jottacloud/osm/bygninger/"  # Folder containing import building files (default folder tried first)
 
 include_incomplete_names = False  # True will include unofficial names, i.e. without name=* present, plus names without object tagging
 
 use_wfs = False  # True will load data from WFS rather than from files
 
-duplicate_tolerance = 1000  # Max. meter distance for flagging duplicate name
+avoid_building = True  # True will relocated place nodes if inside (import) buildings
+
+less_tags = False  # True to avoid extra information tags (VIKTIGHET etc)
+
+duplicate_tolerance = 500  # Max. meter distance for identifying duplicate names
+
+relocate_tolerance = 50  # Max. meter distance for flagging relocated node (away from building)
 
 
 
@@ -94,6 +102,114 @@ def timeformat (sec):
 		return "%i:%02i minutes" % (sec / 60, sec % 60)
 	else:
 		return "%i seconds" % sec
+
+
+
+def average_point(coordinates):
+	'''
+	Compute average of coordinates for area, and mid point for line.
+	'''
+
+	if coordinates:
+		length = len(coordinates)
+
+		# Average of polygon boundary
+		if length > 1 and coordinates[0] == coordinates[-1]:
+			avg_lon = sum([node[0] for node in coordinates[:-1]]) / (length - 1)
+			avg_lat = sum([node[1] for node in coordinates[:-1]]) / (length - 1)
+			return ( avg_lon, avg_lat )
+
+		# Midpoint of line
+		else:
+			midpoint = length // 2
+			if midpoint * 2 == length:
+				avg_lon = 0.5 * (coordinates[ midpoint - 1 ][0] + coordinates[ midpoint ][0])
+				avg_lat = 0.5 * (coordinates[ midpoint - 1 ][1] + coordinates[ midpoint ][1])
+				return ( avg_lon, avg_lat )
+			else:
+				return coordinates[ midpoint ]
+	else:
+		return None
+
+
+
+def compute_distance (point1, point2):
+	'''
+	Compute approximation of distance between two coordinates, (lon,lat), in kilometers.
+	Works for short distances.
+	'''
+
+	lon1, lat1, lon2, lat2 = map(math.radians, [point1[0], point1[1], point2[0], point2[1]])
+	x = (lon2 - lon1) * math.cos( 0.5*(lat2+lat1) )
+	y = lat2 - lat1
+	return 6371000.0 * math.sqrt( x*x + y*y )  # Metres
+
+
+
+def inside_polygon (point, polygon):
+	'''
+	Tests whether point (x,y) is inside a polygon.
+	Ray tracing method.
+	'''
+
+	if polygon[0] == polygon[-1]:
+		x, y = point
+		n = len(polygon)
+		inside = False
+
+		p1x, p1y = polygon[0]
+		for i in range(n):
+			p2x, p2y = polygon[i]
+			if y > min(p1y, p2y):
+				if y <= max(p1y, p2y):
+					if x <= max(p1x, p2x):
+						if p1y != p2y:
+							xints = (y-p1y) * (p2x-p1x) / (p2y-p1y) + p1x
+						if p1x == p2x or x <= xints:
+							inside = not inside
+			p1x, p1y = p2x, p2y
+
+		return inside
+
+	else:
+		return None
+
+
+
+def coordinate_offset (node, distance):
+	'''
+	Calculate new node with given distance offset in meters.
+	Works over short distances.
+	'''
+
+	m = (1 / ((math.pi / 180.0) * 6378137.0))  # Degrees per meter
+
+	latitude = node[1] + (distance * m)
+	longitude = node[0] + (distance * m) / math.cos( math.radians(node[1]) )
+
+	return (longitude, latitude)
+
+
+
+def parse_coordinates(wkt):
+	'''
+	Parse WKT string into list of (lon, lat) coordinate tuples.
+	Convert from UTM 33N.
+	'''
+
+	split_wkt = wkt.split(" ")
+	coordinates = []
+	for i in range(0, len(split_wkt) - 1, 2):
+		x = float(split_wkt[ i ])
+		y = float(split_wkt[ i + 1 ])
+		if use_wfs:
+			node = (x, y)  # 4326
+		else:
+			lat, lon = utm.UtmToLatLon (x, y, 33, "N")
+			node = (lon, lat)
+		coordinates.append(node)
+
+	return coordinates
 
 
 
@@ -148,9 +264,9 @@ def load_municipalities():
 
 	municipalities['00'] = "Norge"
 	for county in data:
-		municipalities[ county['fylkesnummer'] ] = county['fylkesnavn']
 		for municipality in county['kommuner']:
 			municipalities[ municipality['kommunenummer'] ] = municipality['kommunenavnNorsk']
+		municipalities[ county['fylkesnummer'] ] = county['fylkesnavn']
 
 
 
@@ -169,72 +285,71 @@ def load_tagging():
 		for group in main_group['navnetypeGrupper']:
 			for name_type in group['navnetyper']:
 				tagging[ name_type['navn'] ] = name_type['tags']
+
 				if "fixme" in name_type['tags']:
 					tagging[ name_type['navn'] ]['FIXME'] = name_type['tags']['fixme']
 					del tagging[ name_type['navn'] ]['fixme']
+	
 
 
 
-def parse_coordinates(wkt):
+def load_n50_n100 (municipality_id):
 	'''
-	Parse WKT string into list of (lon, lat) coordinate tuples.
-	Convert from UTM 33N.
+	Load visibility priority for place names from N50.
+	Codes < 100 are from N100. Codes < 122 from N50 are relevant for hamlets.
 	'''
 
-	split_wkt = wkt.split(" ")
-	coordinates = []
-	for i in range(0, len(split_wkt) - 1, 2):
-		x = float(split_wkt[ i ])
-		y = float(split_wkt[ i + 1 ])
-		if use_wfs:
-			node = (x, y)  # 4326
+	visibility['N50'] = {}
+	visibility['N100'] = {}
+
+	for scale in ["N50", "N100"]:
+
+		if scale == "N50" and len(municipality_id) == 2:  # No N50 for counties
+			continue
+
+		message ("\tLoading %s data from Kartverket ... " % scale)
+
+		# Load latest N50 file for municipality from Kartverket
+
+		filename = clean_filename("Basisdata_%s_%s_25833_%sKartdata_GML" % (municipality_id, municipalities[municipality_id], scale))
+		url = "https://nedlasting.geonorge.no/geonorge/Basisdata/%sKartdata/GML/%s.zip" % (scale, filename)
+
+		request = urllib.request.Request(url, headers=header)
+		file_in = urllib.request.urlopen(request)
+		zip_file = zipfile.ZipFile(BytesIO(file_in.read()))
+
+		filename2 = filename.replace("Kartdata", "Stedsnavn")
+		file = zip_file.open(filename2 + ".gml")
+
+		tree = ET.parse(file)
+		file.close()
+		file_in.close()
+		root = tree.getroot()
+
+		ns_gml = 'http://www.opengis.net/gml/3.2'
+		if scale == "N50":
+			ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/N50/20170401'
 		else:
-			lat, lon = utm.UtmToLatLon (x, y, 33, "N")
-			node = (lon, lat)
-		coordinates.append(node)
+			ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/N100/20200701'
 
-	return coordinates
+		ns = {
+			'gml': ns_gml,
+			'app': ns_app
+		}
 
+		count = 0
 
+		# Loop place names and store visibility code in dict.
 
-def average_point(coordinates):
-	'''
-	Compute average of coordinates for area, and mid point for line.
-	'''
+		for place in root.findall(".//app:StedsnavnTekst", ns):
+			place_id = place.find("app:stedsnummer", ns)
+			if place_id is not None:
+				place_id = place_id.text
+				text_code = place.find("app:tekstformatering/app:Tekstformatering/app:skriftkode", ns).text
+				visibility[ scale ][ int(place_id) ] = int(text_code)
+				count += 1
 
-	if coordinates:
-		length = len(coordinates)
-
-		# Average of polygon boundary
-		if length > 1 and coordinates[0] == coordinates[-1]:
-			avg_lon = sum([node[0] for node in coordinates[:-1]]) / (length - 1)
-			avg_lat = sum([node[1] for node in coordinates[:-1]]) / (length - 1)
-			return ( avg_lon, avg_lat )
-
-		# Midpoint of line
-		else:
-			midpoint = length // 2
-			if midpoint * 2 == length:
-				avg_lon = 0.5 * (coordinates[ midpoint - 1 ][0] + coordinates[ midpoint ][0])
-				avg_lat = 0.5 * (coordinates[ midpoint - 1 ][1] + coordinates[ midpoint ][1])
-				return ( avg_lon, avg_lat )
-			else:
-				return coordinates[ midpoint ]
-	else:
-		return None
-
-
-
-def compute_distance (point1, point2):
-	'''
-	Compute approximation of distance between two coordinates, (lon,lat), in kilometers.
-	Works for short distances.
-	'''
-
-	lon1, lat1, lon2, lat2 = map(math.radians, [point1[0], point1[1], point2[0], point2[1]])
-	x = (lon2 - lon1) * math.cos( 0.5*(lat2+lat1) )
-	y = lat2 - lat1
-	return 6371000.0 * math.sqrt( x*x + y*y )  # Metres
+		message ("%i places found\n" % count)
 
 
 
@@ -281,13 +396,64 @@ def generate_tags(tags, names, language_priority):
 
 	if main_name:
 		tags['name'] = " - ".join(main_name)
+#		if ";" in tags['name']:
+#			add_fixme(tags, "Velg én skrivemåte i name=* og legg resten i alt_name=*")
 
 	# Add OSM tagging
 
 	tags.update( tagging[ tags['TYPE'] ] )
 
-	if "name" in tags and ";" in tags['name']:
-		add_fixme(tags, "Velg én skrivemåte i name=* og legg resten i alt_name=*")
+	# Override place tag if higher visibility from N50 or N100
+
+	int_id = int(tags['ssr:stedsnr'])
+
+	code = None
+	if int_id in visibility['N50']:
+		code = visibility['N50'][ int_id ]
+		tags['N50'] = str(code)
+
+	if int_id in visibility['N100']:
+		code = visibility['N100'][ int_id ]
+		tags['N100'] = str(code)
+
+	if code and tags['HOVEDGRUPPE'] == "bebyggelse" and "place" in tags:
+
+		# First tests based on place rank from N100
+
+		if code == 1:
+			tags['place'] = "city"
+
+		elif code in [4, 5] and tags['place'] not in ["town", "village", "suburb"]:
+			tags['FIXME'] = "Sjekk endring fra place=%s (N100)" % tags['place']
+			tags['place'] = "village"
+
+		elif code == 6 and tags['place'] != "quarter":
+			tags['FIXME'] = "Vurder place=quarter (N100)"		
+
+		# Next tests will try to identify hamlets
+
+		elif tags['place'] in ["farm", "isolated_dwelling"]:
+
+			if int_id in visibility['N100'] and int_id in visibility['N50'] and visibility['N50'][ int_id ] < 122:  # Both N100 and N50
+				tags['FIXME'] = "Sjekk endring fra place=%s (N100/N50)" % tags['place']
+				tags['place'] = "hamlet"
+
+			elif code < 100:  # N100
+				if tags['VIKTIGHET'] == "E":
+					tags['FIXME'] = "Sjekk endring fra place=%s (N100)" % tags['place']
+					tags['place'] = "hamlet"
+				else:
+					tags['FIXME'] = "Vurder place=hamlet (N100)"
+
+			elif code < 122:  # N50
+				if tags['VIKTIGHET'] == "E":
+					tags['FIXME'] = "Sjekk endring fra place=%s (N50)" % tags['place']
+					tags['place'] = "hamlet"
+				else:
+					tags['FIXME'] = "Vurder place=hamlet (N50)"
+
+	if less_tags:
+		del tags['VIKTIGHET']
 
 
 
@@ -306,6 +472,10 @@ def process_ssr(municipality_id):
 	municipality_name = municipalities[ municipality_id ]
 
 	message ("%s %s\n" % (municipality_id, municipality_name))
+
+	# Load N50/N100 visibility data
+
+	load_n50_n100(municipality_id)
 
 	# Load latest SSR file for municipality from Kartverket
 
@@ -337,6 +507,7 @@ def process_ssr(municipality_id):
 	count = 0
 	count_hits = 0
 	count_language_hits = 0
+	count_extra_main_names = 0
 	points = set()  # Used to discover overlapping points
 
 	if not type_filter:  # Accumulate place names across municipalities/counties if name type filter is used
@@ -356,7 +527,6 @@ def process_ssr(municipality_id):
 			continue
 
 		if int(place_id) in placeids:  # Skip if duplicate place
-#			message ("\t*** Duplicate place: %s\n" % place_id)
 			continue
 
 		placeids.add( int(place_id) )
@@ -364,7 +534,7 @@ def process_ssr(municipality_id):
 #		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
 		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
-#		place_importance = feature[0].find("app:sortering", ns).text  # Not used
+		place_importance = feature[0].find("app:sortering", ns).text  # Not used
 		place_language_priority = feature[0].find("app:språkprioritering", ns).text
 		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
 
@@ -372,9 +542,9 @@ def process_ssr(municipality_id):
 			'ssr:stedsnr': place_id,
 			'TYPE': place_type,
 			'GRUPPE': place_group,
-			'HOVEDGRUPPE': place_maingroup
+			'HOVEDGRUPPE': place_maingroup,
 #			'DATO': place_date,
-#			'VIKTIGHET': place_importance[-1]
+			'VIKTIGHET': place_importance[-1]
 		}
 
 		if len(municipality_id) == 2:
@@ -401,12 +571,13 @@ def process_ssr(municipality_id):
 
 		place_coordinate = ( round(place_coordinate[0], 7), round(place_coordinate[1], 7) )
 		while place_coordinate in points:
-			place_coordinate = ( place_coordinate[0], place_coordinate[1] + 0.0001)
+			place_coordinate = ( place_coordinate[0], place_coordinate[1] + 0.001)
 		points.add(place_coordinate)
 
 		# Get all spellings/languages for the place
 
 		names = {}
+		extra_main_name = []
 
 		for placename in feature[0].findall("app:stedsnavn", ns):
 
@@ -434,13 +605,20 @@ def process_ssr(municipality_id):
 				elif spelling_status in ['foreslått', 'uvurdert']:
 					names[ language ]['loc_name'].append(spelling_name)
 				elif public_placename and name_status != "undernavn" and priority_spelling:
-					names[ language ]['name'].append(spelling_name)
+					if names[ language ]['name']:
+						names[ language ]['alt_name'].insert(0, spelling_name)  # Only one spelling in name=*
+						extra_main_name.append(spelling_name)
+						count_extra_main_names += 1
+					else:
+						names[ language ]['name'].append(spelling_name)
 				else:
 					names[ language ]['alt_name'].append(spelling_name)
 
 		# Get name tags and OSM feature tags
 
 		generate_tags(tags, names, place_language_priority)
+		if extra_main_name:
+			add_fixme(tags, "Sjekk likestilt hovednavn '%s' i alt_name" % ";".join(extra_main_name))
 
 		# Wrap up and store in places dict
 
@@ -460,13 +638,19 @@ def process_ssr(municipality_id):
 			count_hits += 1
 			if len(names) > 1 or "norsk" not in names:
 				count_language_hits += 1
-	
-	check_duplicates()
 
 	message ("\tConverted %i of %i place names" % (count_hits, count))
 	if count_language_hits > 0:
 		message (", including %i non-Norwegian names" % count_language_hits)
 	message("\n")
+
+	if count_extra_main_names > 0:
+		message ("\t%i extra name=* moved to alt_name=*\n" % count_extra_main_names)
+
+	check_duplicates()
+
+	if avoid_building and len(municipality_id) == 4:
+		check_building_overlap(municipality_id)
 
 
 
@@ -480,6 +664,9 @@ def process_ssr_wfs(municipality_id):
 	municipality_name = municipalities[ municipality_id ]
 
 	message ("%s %s\n" % (municipality_id, municipality_name))
+
+	if municipality_id != "00":  # Municipalities and counties only
+		load_n50_n100(municipality_id)
 
 	# Query SSR wfs from Kartverket
 
@@ -508,7 +695,8 @@ def process_ssr_wfs(municipality_id):
 
 	header["Content-Type"] = "text/xml"
 
-	message ("\tLoading wfs for '%s' ... " % filter_parameter[1]) # % (url + wfs_filter))
+	message ("\tLoading wfs for '%s' ... " % filter_parameter[1])
+#	message ("\tURL: %s\n" % (url + wfs_filter))
 
 	request = urllib.request.Request(url + urllib.parse.quote(wfs_filter), headers=header)
 	file = urllib.request.urlopen(request)
@@ -533,17 +721,19 @@ def process_ssr_wfs(municipality_id):
 		place_status = feature[0].find("app:stedstatus", ns).text
 		place_type = feature[0].find("app:navneobjekttype", ns).text
 
-		# Skip place under certain condidations
+		# Skip place under certain conditions
 		if place_status not in ["aktiv", "relikt"] or type_filter and place_type != type_filter:
-#				or place_municipality[:len(municipality_id)] != municipality_id and municipality_id != "00":
 			continue
 
 #		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
 		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
-#		place_importance = feature[0].find("app:sortering", ns)[0][0].text  # Not used
+		place_importance = feature[0].find("app:sortering", ns)[0][0].text
 		place_id = feature[0].find("app:stedsnummer", ns).text
-		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text
+
+		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns)
+		if place_municipality is not None:
+			place_municipality = place_municipality.text
 
 		place_language_priority = feature[0].find("app:språkprioritering", ns)  # Not used at Svalbard
 		if place_language_priority is not None:
@@ -553,12 +743,12 @@ def process_ssr_wfs(municipality_id):
 			'ssr:stedsnr': place_id,
 			'TYPE': place_type,
 			'GRUPPE': place_group,
-			'HOVEDGRUPPE': place_maingroup
+			'HOVEDGRUPPE': place_maingroup,
 #			'DATO': place_date,
-#			'VIKTIGHET': place_importance[-1]
+			'VIKTIGHET': place_importance[-1]
 		}
 
-		if len(municipality_id) == 2:
+		if len(municipality_id) == 2 and place_municipality:
 			tags['KOMMUNE'] = "#" + place_municipality + " " + municipalities[ place_municipality ]
 
 		# Get coordinate
@@ -592,6 +782,8 @@ def process_ssr_wfs(municipality_id):
 		# Get all spellings/languages for the place
 
 		names = {}
+		extra_main_name = []
+		count_extra_main_names = 0
 
 		for placename in feature[0].findall("app:stedsnavn", ns):
 
@@ -623,13 +815,20 @@ def process_ssr_wfs(municipality_id):
 					elif spelling_status in ['foreslått', 'uvurdert']:
 						names[ language ]['loc_name'].append(spelling_name)
 					elif name_status != "undernavn" and (priority_spelling or spelling_status == "vedtatt"):
-						names[ language ]['name'].append(spelling_name)
+						if names[ language ]['name']:
+							names[ language ]['alt_name'].insert(0, spelling_name)  # Only one spelling in name=*
+							extra_main_name.append(spelling_name)
+							count_extra_main_names += 1
+						else:
+							names[ language ]['name'].append(spelling_name)
 					else:
 						names[ language ]['alt_name'].append(spelling_name)
 
 		# Get name tags and OSM feature tags
 
 		generate_tags(tags, names, place_language_priority)
+		if extra_main_name:
+			add_fixme(tags, "Sjekk likestilt hovednavn '%s' i alt_name: " % ";".join(extra_main_name))
 
 		# Wrap up and store in places dict
 
@@ -652,6 +851,9 @@ def process_ssr_wfs(municipality_id):
 	
 	check_duplicates()
 
+	if avoid_building and len(municipality_id) == 4:
+		check_building_overlap(municipality_id)
+
 	message ("\tConverted %i of %i place names" % (count_hits, count))
 	if count_language_hits > 0:
 		message (", including %i non-Norwegian names" % count_language_hits)
@@ -661,10 +863,26 @@ def process_ssr_wfs(municipality_id):
 
 def sort_place(place):
 	'''
-	Define sort key as place type.
+	Generate sort key so that least important places are selected for removal.
 	'''
 	if place['properties']['place'] in place_order:
-		return place_order.index(place['properties']['place'])
+		value = place_order.index(place['properties']['place'])
+		if "FIXME" in place['properties'] and place['properties']['place'] in ["locality", "isolated_dwelling", "farm"]:
+			if  "(N50)" in place['properties']['FIXME']:
+				value = place_order.index("neighbourhood") - 0.11
+			elif "(N100)" in place['properties']['FIXME']:
+				value = place_order.index("neighbourhood") - 0.10
+		else:
+			if place['properties']['TYPE'] == "navnegard":
+				value += 0.2
+			elif place['properties']['TYPE'] == "gard":
+				value += 0.1
+			if "alt_name" in place['properties']:
+				value += 0.01
+			if "old_name" in place['properties']:
+				value += 0.01
+
+		return value
 	else:
 		message ("\tUnknown place: %s\n" % place['properties']['place'])
 		return 0
@@ -696,19 +914,97 @@ def check_duplicates():
 
 	for name, duplicates in iter(place_names.items()):
 		if len(duplicates) > 1:
-			duplicates.sort(key = sort_place, reverse = True)
+			duplicates.sort(key = sort_place)
 
 			while len(duplicates) > 1:
-				ref_point = duplicates.pop(0)['geometry']['coordinates']
+				ref_point = duplicates.pop()['geometry']['coordinates']
 				for place in duplicates:
 					distance = compute_distance(ref_point, place['geometry']['coordinates'])
 					if distance < duplicate_tolerance:
-						add_fixme(place['properties'], "Sjekk duplikat")
-#						place['properties']['DISTANCE'] = int(dist)
+						add_fixme(place['properties'], "Fjern duplikat")
+#						place['properties']['DUPLIKAT'] = str(int(dist))
 						count += 1
 
 	if count > 1:
-		message ("\t%i close place name duplicates\n" % count)
+		message ("\t%i close place name duplicates identified\n" % count)
+
+
+
+def check_building_overlap(municipality_id):
+	'''
+	Discover place node within building and relocated it slightliy.
+	'''
+
+	message ("\tChecking building overlap ... ")
+
+	# Load building file for municipality
+
+	filename = "bygninger_%s_%s.geojson" % (municipality_id, municipalities[ municipality_id ].replace(" ", "_"))
+
+	if not os.path.isfile(filename):
+		test_filename = os.path.expanduser(building_folder + filename)
+		if os.path.isfile(test_filename):
+			filename = test_filename
+		else:
+			message("*** File '%s'not found\n" % filename)
+			return
+
+	file = open(filename)
+	building_data = json.load(file)
+	file.close()
+
+	buildings = [building for building in building_data['features'] if building['geometry']['type'] == "Polygon"]
+
+	# Add polygon bbox to speed up overlap test later
+
+	for building in buildings:
+		building['min_bbox'] = (min([ node[0] for node in building['geometry']['coordinates'][0] ]), \
+								min([ node[1] for node in building['geometry']['coordinates'][0] ]))
+		building['max_bbox'] = (max([ node[0] for node in building['geometry']['coordinates'][0] ]), \
+								max([ node[1] for node in building['geometry']['coordinates'][0] ]))
+
+	margin_overlap = 100  # meters
+	relocate_step = 2  # meters
+	count = 0
+
+	# Iterate all place names and relocate slightly if inside building (only for place=* tags)
+
+	for place in places:
+		if place['properties']['HOVEDGRUPPE'] != "bebyggelse" or "place" not in place['properties']:
+			continue
+
+		node = place['geometry']['coordinates']
+		min_bbox = coordinate_offset(node, - margin_overlap)
+		max_bbox = coordinate_offset(node, + margin_overlap) 
+
+		# Identify buildings in vicinity of place name
+
+		target_buildings = []
+		for building in buildings:
+			if min_bbox[0] < building['max_bbox'][0] and max_bbox[0] > building['min_bbox'][0] and \
+					min_bbox[1] < building['max_bbox'][1] and max_bbox[1] > building['min_bbox'][1]:
+				target_buildings.append(building)
+
+		# Relocate place name slightly until outside of buildings
+
+		if target_buildings:
+			inside = True
+			while inside:
+				for building in target_buildings:
+					inside = inside_polygon(node, building['geometry']['coordinates'][0])
+					if inside:
+						node = coordinate_offset(building['min_bbox'], - random.uniform(relocate_step, 2 * relocate_step))
+						break
+
+			if place['geometry']['coordinates'] != node:
+				distance = compute_distance(place['geometry']['coordinates'], node)
+				if distance > relocate_tolerance:
+					add_fixme(place, "Sjekk plassering (flyttet %im)" % distance)
+				place['geometry']['coordinates'] = (round(node[0], 7), round(node[1], 7))
+#				place['properties']['FLYTTET'] = str(int(distance))
+				count += 1
+
+	message ("%i place nodes relocated away from buildings\n" % count)
 
 
 
@@ -756,6 +1052,10 @@ if __name__ == '__main__':
 	tagging = {}         # OSM tagging for each name type
 	municipalities = {}  # Codes/names of all counties and municipalities
 	placeids = set()     # Will contain all place id's (stedsnr)
+	visibility = {       # Place id's (stedsnr) for high visibility in N50 and N100
+		'N100': {},
+		'N50': {}
+	}
 
 	# Get parameters
 
@@ -766,6 +1066,12 @@ if __name__ == '__main__':
 	if len(sys.argv) < 2:
 		message ("Please provide municipality number or name\n\n")
 		sys.exit()
+
+	if "-nobuilding" in sys.argv:
+		avoid_building = False
+
+	if "-clean" in sys.argv:
+		less_tags = True
 
 	load_municipalities()
 	municipality_id = get_municipality(sys.argv[1])

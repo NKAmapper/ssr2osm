@@ -19,6 +19,19 @@ Examples:
  * Historic settlements in Innlandet: <code>python3 ssr2osm.py Innlandet historiskBosetting</code>
  * Churches in Norway, from WFS: <code>python3 ssr2osm.py Norge kirke -wfs</code>
  
+### Changelog
+
+* 1.0: New major version
+  - Load N50 and N100 to get place name ranks for adjusting place=village, quarter, hamlet.
+  - Load building footprints to relocate place name node outside of building (for farm, isolated_dwelling etc).
+  - If more than one place name in name=* then put the others in alt_name=* + fixme.
+  - Mark only non-priority place names as duplicate (improved sorting).
+* 0.6: Check for duplicate place names (identical name=*).
+* 0.5: Add WFS query option.
+* 0.4: Do not use name:no=* unless a different language is present (no special process for sami municipalities).
+* 0.3: Fix for historic names.
+* 0.2: First version.
+
 ### References
   
 * [Guide: Import av stedsnavn fra SSR2](https://wiki.openstreetmap.org/wiki/No:Import_av_stedsnavn_fra_SSR2)

@@ -959,7 +959,7 @@
               "visningsnavn": "Foss",
               "beskrivelse": "Vann i tilnærmet fritt fall.",
               "tags": {
-                "natural": "waterfall"
+                "waterway": "waterfall"
               }
             },
             {

@@ -10,6 +10,7 @@ Parameters:
   * _Name type_: Name type to extract, for example _"turisthytte"_, _"serveringssted"_, _"kirke"_, _"nesISjø"_ etc. Combine with "Norway" to extract all occurrences of the name type for the whole country, or combine with municipality or county name. Case sensitive paramter. Plese see [navnetyper_tagged.json](https://github.com/NKAmapper/ssr2osm/blob/main/navnetyper_tagged.json) for list of available name types.
   * <code>-all</code>: Also include place names without the main _name=*_ tag, for example with only _loc_name=*_ or _old_name=*_, or with no OSM feature tagging.
   * <code>-wfs</code>: Query WFS service instead of loading predefined files. Quicker for modest name type queries, but considerably slower for municipalities.
+  * <code>-nobuilding</code>: Skip relocation of nodes to outside buildings.
 
 Examples:
  * Vestre Toten municipality: <code>python3 ssr2osm.py "Vestre Toten"</code>
@@ -21,6 +22,7 @@ Examples:
  
 ### Changelog
 
+* 1.2: Support new N100 and N50 specifications; Only one name in name=*.
 * 1.0: New major version
   - Load N50 and N100 to get place name ranks for adjusting place=village, quarter, hamlet.
   - Load building footprints to relocate place name node outside of building (for farm, isolated_dwelling etc).

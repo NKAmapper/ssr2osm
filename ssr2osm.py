@@ -11,7 +11,7 @@ Parameters:
 - Optional: "-all" will include place names without name=* tags (just loc_name/old_name) and without OSM feature tags (place=*, natural=* etc)
 - Optional: "-wfs" will query place names through Kartverket WFS service
 - Optional: "-nobuilding" will skip test for overlap with buildings
-- Optional: "-clean" will save less information tags
+- Optional: "-extra" will save extra information tags
 '''
 
 
@@ -29,7 +29,7 @@ from itertools import chain
 import utm
 
 
-version = "1.0.0"
+version = "1.2.0"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -73,7 +73,7 @@ use_wfs = False  # True will load data from WFS rather than from files
 
 avoid_building = True  # True will relocated place nodes if inside (import) buildings
 
-less_tags = False  # True to avoid extra information tags (VIKTIGHET etc)
+less_tags = True  # True to avoid extra information tags (SORTERING etc)
 
 duplicate_tolerance = 500  # Max. meter distance for identifying duplicate names
 
@@ -289,6 +289,10 @@ def load_tagging():
 				if "fixme" in name_type['tags']:
 					tagging[ name_type['navn'] ]['FIXME'] = name_type['tags']['fixme']
 					del tagging[ name_type['navn'] ]['fixme']
+
+					# Temporary
+					if "peak" in tagging[ name_type['navn'] ]['FIXME']:
+						del tagging[ name_type['navn'] ]['FIXME']
 	
 
 
@@ -319,18 +323,22 @@ def load_n50_n100 (municipality_id):
 		zip_file = zipfile.ZipFile(BytesIO(file_in.read()))
 
 		filename2 = filename.replace("Kartdata", "Stedsnavn")
-		file = zip_file.open(filename2 + ".gml")
+		try:
+			file = zip_file.open(filename2 + ".gml")
+		except KeyError:
+			message ("\t*** %s not found\n" % scale)
+			continue
 
 		tree = ET.parse(file)
 		file.close()
 		file_in.close()
 		root = tree.getroot()
 
-		ns_gml = 'http://www.opengis.net/gml/3.2'
+		ns_gml = "http://www.opengis.net/gml/3.2"
 		if scale == "N50":
-			ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/N50/20170401'
+			ns_app = "https://skjema.geonorge.no/SOSI/produktspesifikasjon/N50/20230401"
 		else:
-			ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/N100/20200701'
+			ns_app = "https://skjema.geonorge.no/SOSI/produktspesifikasjon/N100/20230401"
 
 		ns = {
 			'gml': ns_gml,
@@ -374,6 +382,7 @@ def generate_tags(tags, names, language_priority):
 	'''
 
 	main_name = []
+	extra_main_name = []
 
 	if language_priority is None:
 		language_priority = "-".join(names.keys())
@@ -383,6 +392,14 @@ def generate_tags(tags, names, language_priority):
 
 	for language in language_priority.split("-"):
 		if language in names:
+
+			# Ensure only one main name, keep the longest ("Vestre Berg" before "Berg")
+			if len(names[ language ]['name']) > 1:
+				names[ language ]['name'].sort(key=len, reverse=True)
+				extra_main_name.extend(names[ language ]['name'][1:] )
+				names[ language ]['alt_name'] = names[ language ]['name'][1:] + names[ language ]['alt_name']
+				names[ language ]['name'] = [ names[ language ]['name'][0] ]
+
 			for name_tag_type in ['name', 'alt_name', 'loc_name', 'old_name']:
 				if names[ language ][ name_tag_type ]:
 
@@ -396,8 +413,6 @@ def generate_tags(tags, names, language_priority):
 
 	if main_name:
 		tags['name'] = " - ".join(main_name)
-#		if ";" in tags['name']:
-#			add_fixme(tags, "Velg én skrivemåte i name=* og legg resten i alt_name=*")
 
 	# Add OSM tagging
 
@@ -423,6 +438,9 @@ def generate_tags(tags, names, language_priority):
 		if code == 1:
 			tags['place'] = "city"
 
+		elif code == 3 and tags['place'] != "town":
+			tags['FIXME'] = "Sjekk om place=town er brukt (N100)"
+
 		elif code in [4, 5] and tags['place'] not in ["town", "village", "suburb"]:
 			tags['FIXME'] = "Sjekk endring fra place=%s (N100)" % tags['place']
 			tags['place'] = "village"
@@ -439,21 +457,36 @@ def generate_tags(tags, names, language_priority):
 				tags['place'] = "hamlet"
 
 			elif code < 100:  # N100
-				if tags['VIKTIGHET'] == "E":
+				if tags['SORTERING'] == "E":
 					tags['FIXME'] = "Sjekk endring fra place=%s (N100)" % tags['place']
 					tags['place'] = "hamlet"
 				else:
 					tags['FIXME'] = "Vurder place=hamlet (N100)"
 
 			elif code < 122:  # N50
-				if tags['VIKTIGHET'] == "E":
+				if tags['SORTERING'] == "E":
 					tags['FIXME'] = "Sjekk endring fra place=%s (N50)" % tags['place']
 					tags['place'] = "hamlet"
 				else:
 					tags['FIXME'] = "Vurder place=hamlet (N50)"
 
+	# Tag most important peaks
+
+	elif code and tags['GRUPPE'] == "høyder":
+		if code < 100 and "natural" in tags and tags['natural'] == "hill":  # Peak is present in N100
+			tags['natural'] = "peak"
+			if "place" in tags:
+				del tags['place']
+
+	# Warn about multiple main names
+
+	if extra_main_name:
+		add_fixme(tags, "Sjekk likestilt hovednavn '%s' i alt_name" % ";".join(extra_main_name))
+
 	if less_tags:
-		del tags['VIKTIGHET']
+		del tags['SORTERING']
+#		if "DUPLIKAT" in tags:
+#			del tags['DUPLIKAT']
 
 
 
@@ -534,9 +567,12 @@ def process_ssr(municipality_id):
 #		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
 		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
-		place_importance = feature[0].find("app:sortering", ns).text  # Not used
-		place_language_priority = feature[0].find("app:språkprioritering", ns).text
+		place_sorting = feature[0].find("app:sortering", ns).text  # Not used
 		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
+
+		place_language_priority = feature[0].find("app:språkprioritering", ns)
+		if place_language_priority is not None:
+			place_language_priority = feature[0].find("app:språkprioritering", ns).text
 
 		tags = {
 			'ssr:stedsnr': place_id,
@@ -544,7 +580,7 @@ def process_ssr(municipality_id):
 			'GRUPPE': place_group,
 			'HOVEDGRUPPE': place_maingroup,
 #			'DATO': place_date,
-			'VIKTIGHET': place_importance[-1]
+			'SORTERING': place_sorting[-1]
 		}
 
 		if len(municipality_id) == 2:
@@ -577,7 +613,6 @@ def process_ssr(municipality_id):
 		# Get all spellings/languages for the place
 
 		names = {}
-		extra_main_name = []
 
 		for placename in feature[0].findall("app:stedsnavn", ns):
 
@@ -605,20 +640,13 @@ def process_ssr(municipality_id):
 				elif spelling_status in ['foreslått', 'uvurdert']:
 					names[ language ]['loc_name'].append(spelling_name)
 				elif public_placename and name_status != "undernavn" and priority_spelling:
-					if names[ language ]['name']:
-						names[ language ]['alt_name'].insert(0, spelling_name)  # Only one spelling in name=*
-						extra_main_name.append(spelling_name)
-						count_extra_main_names += 1
-					else:
-						names[ language ]['name'].append(spelling_name)
+					names[ language ]['name'].append(spelling_name)
 				else:
 					names[ language ]['alt_name'].append(spelling_name)
 
 		# Get name tags and OSM feature tags
 
 		generate_tags(tags, names, place_language_priority)
-		if extra_main_name:
-			add_fixme(tags, "Sjekk likestilt hovednavn '%s' i alt_name" % ";".join(extra_main_name))
 
 		# Wrap up and store in places dict
 
@@ -638,6 +666,8 @@ def process_ssr(municipality_id):
 			count_hits += 1
 			if len(names) > 1 or "norsk" not in names:
 				count_language_hits += 1
+			if "FIXME" in tags and "likestilt" in tags['FIXME']:
+				count_extra_main_names += 1
 
 	message ("\tConverted %i of %i place names" % (count_hits, count))
 	if count_language_hits > 0:
@@ -696,7 +726,6 @@ def process_ssr_wfs(municipality_id):
 	header["Content-Type"] = "text/xml"
 
 	message ("\tLoading wfs for '%s' ... " % filter_parameter[1])
-#	message ("\tURL: %s\n" % (url + wfs_filter))
 
 	request = urllib.request.Request(url + urllib.parse.quote(wfs_filter), headers=header)
 	file = urllib.request.urlopen(request)
@@ -728,7 +757,7 @@ def process_ssr_wfs(municipality_id):
 #		place_date = (feature[0].find("app:oppdateringsdato", ns).text)[:10]  # Not used
 		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
-		place_importance = feature[0].find("app:sortering", ns)[0][0].text
+		place_sorting = feature[0].find("app:sortering", ns)[0][0].text
 		place_id = feature[0].find("app:stedsnummer", ns).text
 
 		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns)
@@ -745,7 +774,7 @@ def process_ssr_wfs(municipality_id):
 			'GRUPPE': place_group,
 			'HOVEDGRUPPE': place_maingroup,
 #			'DATO': place_date,
-			'VIKTIGHET': place_importance[-1]
+			'SORTERING': place_sorting[-1]
 		}
 
 		if len(municipality_id) == 2 and place_municipality:
@@ -782,7 +811,6 @@ def process_ssr_wfs(municipality_id):
 		# Get all spellings/languages for the place
 
 		names = {}
-		extra_main_name = []
 		count_extra_main_names = 0
 
 		for placename in feature[0].findall("app:stedsnavn", ns):
@@ -815,20 +843,13 @@ def process_ssr_wfs(municipality_id):
 					elif spelling_status in ['foreslått', 'uvurdert']:
 						names[ language ]['loc_name'].append(spelling_name)
 					elif name_status != "undernavn" and (priority_spelling or spelling_status == "vedtatt"):
-						if names[ language ]['name']:
-							names[ language ]['alt_name'].insert(0, spelling_name)  # Only one spelling in name=*
-							extra_main_name.append(spelling_name)
-							count_extra_main_names += 1
-						else:
-							names[ language ]['name'].append(spelling_name)
+						names[ language ]['name'].append(spelling_name)
 					else:
 						names[ language ]['alt_name'].append(spelling_name)
 
 		# Get name tags and OSM feature tags
 
 		generate_tags(tags, names, place_language_priority)
-		if extra_main_name:
-			add_fixme(tags, "Sjekk likestilt hovednavn '%s' i alt_name: " % ";".join(extra_main_name))
 
 		# Wrap up and store in places dict
 
@@ -848,6 +869,8 @@ def process_ssr_wfs(municipality_id):
 			count_hits += 1
 			if len(names) > 1 or "nor" not in names:
 				count_language_hits += 1
+			if "FIXME" in tags and "likestilt" in tags['FIXME']:
+				count_extra_main_names += 1
 	
 	check_duplicates()
 
@@ -858,6 +881,9 @@ def process_ssr_wfs(municipality_id):
 	if count_language_hits > 0:
 		message (", including %i non-Norwegian names" % count_language_hits)
 	message("\n")
+
+	if count_extra_main_names > 0:
+		message ("\t%i extra name=* moved to alt_name=*\n" % count_extra_main_names)
 
 
 
@@ -922,7 +948,7 @@ def check_duplicates():
 					distance = compute_distance(ref_point, place['geometry']['coordinates'])
 					if distance < duplicate_tolerance:
 						add_fixme(place['properties'], "Fjern duplikat")
-#						place['properties']['DUPLIKAT'] = str(int(dist))
+						place['properties']['DUPLIKAT'] = str(int(distance))
 						count += 1
 
 	if count > 1:
@@ -1070,8 +1096,8 @@ if __name__ == '__main__':
 	if "-nobuilding" in sys.argv:
 		avoid_building = False
 
-	if "-clean" in sys.argv:
-		less_tags = True
+	if "-extra" in sys.argv:
+		less_tags = False
 
 	load_municipalities()
 	municipality_id = get_municipality(sys.argv[1])
@@ -1115,6 +1141,10 @@ if __name__ == '__main__':
 			# Output all municipalities separately
 			for municipality_id in sorted(list(municipalities.keys())):
 				if len(municipality_id) == 4:
+
+					if municipality_id < "":  # Skip if need to restart
+						continue
+
 					lap_time = time.time()
 					process_ssr(municipality_id)
 					output_geojson(municipality_id)

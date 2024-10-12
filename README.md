@@ -11,6 +11,7 @@ Parameters:
   * <code>-all</code>: Also include place names without the main _name=*_ tag, for example with only _loc_name=*_ or _old_name=*_, or with no OSM feature tagging.
   * <code>-wfs</code>: Query WFS service instead of loading predefined files. Quicker for modest name type queries, but considerably slower for municipalities.
   * <code>-nobuilding</code>: Skip relocation of nodes to outside buildings.
+  * <code>-allpoints</code>: Include all available coordinates for rivers and streams.
 
 Examples:
  * Vestre Toten municipality: <code>python3 ssr2osm.py "Vestre Toten"</code>
@@ -22,6 +23,7 @@ Examples:
  
 ### Changelog
 
+* 1.3: Support 2023 SSR specification; Option for including all available coordinates for rivers and streams.
 * 1.2: Support new N100 and N50 specifications; Only one name in name=*.
 * 1.0: New major version
   - Load N50 and N100 to get place name ranks for adjusting place=village, quarter, hamlet.

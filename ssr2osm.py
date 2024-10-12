@@ -12,10 +12,12 @@ Parameters:
 - Optional: "-wfs" will query place names through Kartverket WFS service
 - Optional: "-nobuilding" will skip test for overlap with buildings
 - Optional: "-extra" will save extra information tags
+- Optional: "-allpoints" will include all available coordinates for rivers and streams
 '''
 
 
 import json
+import copy
 import sys
 import time
 import math
@@ -29,7 +31,7 @@ from itertools import chain
 import utm
 
 
-version = "1.2.0"
+version = "1.3.0"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -68,6 +70,8 @@ language_codes = {
 building_folder = "~/Jottacloud/osm/bygninger/"  # Folder containing import building files (default folder tried first)
 
 include_incomplete_names = False  # True will include unofficial names, i.e. without name=* present, plus names without object tagging
+
+include_all_river_points = False  # True will include all coordinates in SSR for rivers/streams
 
 use_wfs = False  # True will load data from WFS rather than from files
 
@@ -197,7 +201,7 @@ def parse_coordinates(wkt):
 	Convert from UTM 33N.
 	'''
 
-	split_wkt = wkt.split(" ")
+	split_wkt = wkt.split()
 	coordinates = []
 	for i in range(0, len(split_wkt) - 1, 2):
 		x = float(split_wkt[ i ])
@@ -495,7 +499,7 @@ def process_ssr(municipality_id):
 	Main function of ssr2osm.
 	Load municipality or county SSR file and convert to OSM tagging.
 	Converted place names are added to "places" list.
-	Switch to SSR wfs query function if selected.
+	Switch to SSR wfs query function if selected, otherwise load xlm file at Kartverket.
 	'''
 
 	if use_wfs:
@@ -513,7 +517,7 @@ def process_ssr(municipality_id):
 	# Load latest SSR file for municipality from Kartverket
 
 	ns_gml = 'http://www.opengis.net/gml/3.2'
-	ns_app = 'http://skjema.geonorge.no/SOSI/produktspesifikasjon/StedsnavnForVanligBruk/20181115'
+	ns_app = 'https://skjema.geonorge.no/SOSI/produktspesifikasjon/StedsnavnForVanligBruk/20231001'
 
 	ns = {
 		'gml': ns_gml,
@@ -588,14 +592,19 @@ def process_ssr(municipality_id):
 
 		# Get coordinate
 
+		additional_coordinates = []
+
 		if feature[0].find("app:multipunkt", ns):
 			place_coordinate = parse_coordinates(feature[0].find("app:multipunkt", ns)[0][0][0][0].text)[0]  # Use 1st point
+			for point_member in feature[0].findall("app:multipunkt/gml:MultiPoint/gml:pointMember", ns):
+				additional_coordinates.append(parse_coordinates(point_member[0][0].text)[0])
 
 		elif feature[0].find("app:posisjon", ns):
 			place_coordinate = parse_coordinates(feature[0].find("app:posisjon", ns)[0][0].text)[0]
 
 		elif feature[0].find("app:senterlinje", ns):
 			place_coordinate = average_point(parse_coordinates(feature[0].find("app:senterlinje", ns)[0][0].text))
+			additional_coordinates = parse_coordinates(feature[0].find("app:senterlinje", ns)[0][0].text)
 
 		elif feature[0].find("app:område", ns):
 			place_coordinate = average_point(parse_coordinates(feature[0].find("app:område", ns)[0][0][0][0][0][0].text))
@@ -669,6 +678,21 @@ def process_ssr(municipality_id):
 			if "FIXME" in tags and "likestilt" in tags['FIXME']:
 				count_extra_main_names += 1
 
+			# Add extra instances for multiple coordinates
+
+			if include_all_river_points and place_type in ["elv", "elvesving", "bekk", "grøft"] and additional_coordinates:
+				for additional_coordinate in additional_coordinates:
+
+					extra_point = ( round(additional_coordinate[0], 7), round(additional_coordinate[1], 7) )
+					while extra_point in points:
+						extra_point = ( extra_point[0], extra_point[1] + 0.001)
+					points.add(extra_point)
+
+					extra_feature = copy.deepcopy(new_feature)
+					extra_feature['properties']['EXTRA'] = "yes"
+					extra_feature['geometry']['coordinates'] = extra_point
+					places.append(extra_feature)
+
 	message ("\tConverted %i of %i place names" % (count_hits, count))
 	if count_language_hits > 0:
 		message (", including %i non-Norwegian names" % count_language_hits)
@@ -686,7 +710,7 @@ def process_ssr(municipality_id):
 
 def process_ssr_wfs(municipality_id):
 	'''
-	Main function of ssr2osm.
+	Main function of ssr2osm for wfs queries.
 	Query SSR by municipality, county or name type, and convert to OSM tagging.
 	Converted place names are added to "places" list.
 	'''
@@ -1117,6 +1141,9 @@ if __name__ == '__main__':
 
 	if "-all" in sys.argv or "-alt" in sys.argv:
 		include_incomplete_names = True  # Also include place names without main name=* or without OSM feature tagging
+
+	if "-allpoints" in sys.argv:
+		include_all_river_points = True  # Include extra instances for each river/stream coordinate in SSR
 
 	# Execute conversion
 

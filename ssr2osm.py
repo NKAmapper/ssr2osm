@@ -31,7 +31,7 @@ from itertools import chain
 import utm
 
 
-version = "1.3.0"
+version = "1.3.1"
 
 header = {"User-Agent": "nkamapper/ssr2osm"}
 
@@ -572,7 +572,6 @@ def process_ssr(municipality_id):
 		place_maingroup = feature[0].find("app:navneobjekthovedgruppe", ns).text
 		place_group = feature[0].find("app:navneobjektgruppe", ns).text
 		place_sorting = feature[0].find("app:sortering", ns).text  # Not used
-		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns).text 
 
 		place_language_priority = feature[0].find("app:språkprioritering", ns)
 		if place_language_priority is not None:
@@ -588,7 +587,10 @@ def process_ssr(municipality_id):
 		}
 
 		if len(municipality_id) == 2:
-			tags['KOMMUNE'] = "#" + place_municipality + " " + municipalities[ place_municipality ]
+			place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns)
+			if place_municipality is not None:
+				place_municipality = place_municipality.text
+				tags['KOMMUNE'] = "#" + place_municipality + " " + municipalities[ place_municipality ]
 
 		# Get coordinate
 
@@ -784,10 +786,6 @@ def process_ssr_wfs(municipality_id):
 		place_sorting = feature[0].find("app:sortering", ns)[0][0].text
 		place_id = feature[0].find("app:stedsnummer", ns).text
 
-		place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns)
-		if place_municipality is not None:
-			place_municipality = place_municipality.text
-
 		place_language_priority = feature[0].find("app:språkprioritering", ns)  # Not used at Svalbard
 		if place_language_priority is not None:
 			place_language_priority = place_language_priority.text
@@ -801,8 +799,11 @@ def process_ssr_wfs(municipality_id):
 			'SORTERING': place_sorting[-1]
 		}
 
-		if len(municipality_id) == 2 and place_municipality:
-			tags['KOMMUNE'] = "#" + place_municipality + " " + municipalities[ place_municipality ]
+		if len(municipality_id) == 2:
+			place_municipality = feature[0].find("app:kommune/app:Kommune/app:kommunenummer", ns)
+			if place_municipality is not None:
+				place_municipality = place_municipality.text
+				tags['KOMMUNE'] = "#" + place_municipality + " " + municipalities[ place_municipality ]
 
 		# Get coordinate
 
